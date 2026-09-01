@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS Expert",
+  "type": "object",
+  "required": ["id", "name_zh", "version", "status", "role", "source", "license"],
+  "properties": {
+    "id": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "name_zh": {"type": "string", "minLength": 2},
+    "version": {"type": "string"},
+    "status": {"enum": ["candidate", "probation", "active", "bench", "retired", "governance"]},
+    "role": {"type": "string"},
+    "source": {"type": "string"},
+    "license": {"type": "string"}
+  },
+  "additionalProperties": true
+}
