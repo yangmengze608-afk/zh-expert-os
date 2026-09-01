@@ -1,0 +1,41 @@
+{
+  "schema_version": "0.1",
+  "experts": [
+    {
+      "id": "cao",
+      "name_zh": "首席专家官",
+      "version": "0.1.0",
+      "status": "governance",
+      "role": "talent-governance",
+      "source": "original",
+      "license": "MIT"
+    },
+    {
+      "id": "auditor",
+      "name_zh": "独立审计官",
+      "version": "0.1.0",
+      "status": "governance",
+      "role": "governance-audit",
+      "source": "original",
+      "license": "MIT"
+    },
+    {
+      "id": "router",
+      "name_zh": "中文任务路由官",
+      "version": "0.1.0",
+      "status": "governance",
+      "role": "task-routing",
+      "source": "original",
+      "license": "MIT"
+    },
+    {
+      "id": "red-team",
+      "name_zh": "红队反证专家",
+      "version": "0.1.0",
+      "status": "governance",
+      "role": "adversarial-review",
+      "source": "original",
+      "license": "MIT"
+    }
+  ]
+}
