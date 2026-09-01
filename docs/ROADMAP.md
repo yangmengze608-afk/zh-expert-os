@@ -9,13 +9,17 @@
 - 晋升建议器
 - CLI + 单元测试
 
-## v0.2 — Eval Arena
-- JSONL benchmark
-- Blind A/B runner
-- 多 Judge / 人类打分
-- 评分一致性与偏差监控
-- 岗位级 benchmark
-- 失败案例库
+## v0.2 — Eval Arena ✅
+- JSONL benchmark 校验与批量建场
+- 同题匿名 A/B battle
+- A/B 身份随机映射
+- Judge 展示顺序 AB / BA 自动对冲
+- 多 Judge 评分聚合
+- 严重错误硬门槛
+- Judge 分歧率与位置偏差监控
+- battle → MatchRecord 幂等写回
+- Arena Director / Arena Judge 治理角色
+- CLI + CI + 单元测试
 
 ## v0.3 — Recruiter
 - GitHub 候选发现

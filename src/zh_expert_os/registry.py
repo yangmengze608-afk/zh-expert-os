@@ -57,16 +57,24 @@ class Registry:
             raise KeyError(f"未找到专家：{expert_id}")
         self._save(self.experts_path, data)
 
-    def record_match(self, match: MatchRecord) -> None:
+    def record_match(self, match: MatchRecord) -> bool:
         data = self._load(self.matches_path)
-        data["matches"].append({
+        if match.source_battle_id:
+            for row in data["matches"]:
+                if row.get("source_battle_id") == match.source_battle_id:
+                    return False
+        row = {
             "challenger": match.challenger,
             "incumbent": match.incumbent,
             "wins": match.wins,
             "losses": match.losses,
             "ties": match.ties,
-        })
+        }
+        if match.source_battle_id:
+            row["source_battle_id"] = match.source_battle_id
+        data["matches"].append(row)
         self._save(self.matches_path, data)
+        return True
 
     def aggregate_match(self, challenger: str, incumbent: str) -> MatchRecord:
         data = self._load(self.matches_path)

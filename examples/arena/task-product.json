@@ -1,0 +1,6 @@
+{
+  "id": "product-demo-001",
+  "prompt": "判断一个面向中文用户的 AI 专家团产品是否值得先做 GitHub 开源 MVP，并给出最小验证路径。",
+  "category": "product",
+  "risk_level": "normal"
+}

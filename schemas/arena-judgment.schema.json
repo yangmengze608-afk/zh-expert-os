@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS Arena Judgment",
+  "type": "object",
+  "required": ["battle_id", "judge_id", "presentation_order", "score_a", "score_b"],
+  "properties": {
+    "battle_id": {"type": "string", "minLength": 1},
+    "judge_id": {"type": "string", "minLength": 1},
+    "presentation_order": {"enum": ["AB", "BA"]},
+    "score_a": {"$ref": "#/$defs/scores"},
+    "score_b": {"$ref": "#/$defs/scores"},
+    "rationale": {"type": "string"}
+  },
+  "$defs": {
+    "scores": {
+      "type": "object",
+      "required": ["task_completion", "factuality", "evidence_quality", "chinese_native", "clarity"],
+      "properties": {
+        "task_completion": {"type": "number", "minimum": 0, "maximum": 1},
+        "factuality": {"type": "number", "minimum": 0, "maximum": 1},
+        "evidence_quality": {"type": "number", "minimum": 0, "maximum": 1},
+        "chinese_native": {"type": "number", "minimum": 0, "maximum": 1},
+        "clarity": {"type": "number", "minimum": 0, "maximum": 1},
+        "critical_violations": {"type": "integer", "minimum": 0, "default": 0}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

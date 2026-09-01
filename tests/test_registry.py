@@ -19,7 +19,7 @@ class RegistryTests(unittest.TestCase):
             }]}, ensure_ascii=False), encoding="utf-8"
         )
         (root / "registry" / "matches.json").write_text(
-            json.dumps({"schema_version": "0.1", "matches": []}), encoding="utf-8"
+            json.dumps({"schema_version": "0.2", "matches": []}), encoding="utf-8"
         )
         self.reg = Registry(root)
 
@@ -40,6 +40,12 @@ class RegistryTests(unittest.TestCase):
         self.reg.record_match(MatchRecord("c", "i", 4, 1, 0))
         agg = self.reg.aggregate_match("c", "i")
         self.assertEqual((agg.wins, agg.losses, agg.ties), (7, 3, 1))
+
+    def test_source_battle_is_idempotent(self):
+        self.reg.record_match(MatchRecord("c", "i", 1, 0, 0, "battle-x"))
+        inserted = self.reg.record_match(MatchRecord("c", "i", 1, 0, 0, "battle-x"))
+        self.assertFalse(inserted)
+        self.assertEqual(self.reg.aggregate_match("c", "i").wins, 1)
 
 
 if __name__ == "__main__":

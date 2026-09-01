@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS Arena Task",
+  "type": "object",
+  "required": ["id", "prompt"],
+  "properties": {
+    "id": {"type": "string", "minLength": 1},
+    "prompt": {"type": "string", "minLength": 1},
+    "category": {"type": "string", "default": "general"},
+    "risk_level": {"type": "string", "default": "normal"}
+  },
+  "additionalProperties": false
+}

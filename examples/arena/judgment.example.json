@@ -1,0 +1,22 @@
+{
+  "battle_id": "battle-替换为真实ID",
+  "judge_id": "judge-1",
+  "presentation_order": "AB",
+  "score_a": {
+    "task_completion": 0.90,
+    "factuality": 0.92,
+    "evidence_quality": 0.88,
+    "chinese_native": 0.95,
+    "clarity": 0.90,
+    "critical_violations": 0
+  },
+  "score_b": {
+    "task_completion": 0.80,
+    "factuality": 0.88,
+    "evidence_quality": 0.78,
+    "chinese_native": 0.82,
+    "clarity": 0.85,
+    "critical_violations": 0
+  },
+  "rationale": "A 对关键假设和验证路径拆解更完整。"
+}

@@ -1,41 +1,11 @@
 {
-  "schema_version": "0.1",
+  "schema_version": "0.2",
   "experts": [
-    {
-      "id": "cao",
-      "name_zh": "首席专家官",
-      "version": "0.1.0",
-      "status": "governance",
-      "role": "talent-governance",
-      "source": "original",
-      "license": "MIT"
-    },
-    {
-      "id": "auditor",
-      "name_zh": "独立审计官",
-      "version": "0.1.0",
-      "status": "governance",
-      "role": "governance-audit",
-      "source": "original",
-      "license": "MIT"
-    },
-    {
-      "id": "router",
-      "name_zh": "中文任务路由官",
-      "version": "0.1.0",
-      "status": "governance",
-      "role": "task-routing",
-      "source": "original",
-      "license": "MIT"
-    },
-    {
-      "id": "red-team",
-      "name_zh": "红队反证专家",
-      "version": "0.1.0",
-      "status": "governance",
-      "role": "adversarial-review",
-      "source": "original",
-      "license": "MIT"
-    }
+    {"id":"cao","name_zh":"首席专家官","version":"0.1.0","status":"governance","role":"talent-governance","source":"original","license":"MIT"},
+    {"id":"auditor","name_zh":"独立审计官","version":"0.1.0","status":"governance","role":"governance-audit","source":"original","license":"MIT"},
+    {"id":"router","name_zh":"中文任务路由官","version":"0.1.0","status":"governance","role":"task-routing","source":"original","license":"MIT"},
+    {"id":"red-team","name_zh":"红队反证专家","version":"0.1.0","status":"governance","role":"adversarial-review","source":"original","license":"MIT"},
+    {"id":"arena-director","name_zh":"竞技场主持官","version":"0.2.0","status":"governance","role":"eval-orchestration","source":"original","license":"MIT"},
+    {"id":"arena-judge","name_zh":"匿名评测裁判","version":"0.2.0","status":"governance","role":"blind-evaluation","source":"original","license":"MIT"}
   ]
 }
