@@ -5,7 +5,7 @@ import os
 import urllib.error
 import urllib.parse
 import urllib.request
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
 
 @dataclass(slots=True)
@@ -145,8 +145,8 @@ def discover_candidate_assets(
 
     return {
         "capability": capability,
-        "repository_hits": [h.__dict__ for h in repo_hits],
-        "code_hits": [h.__dict__ for h in code_hits],
+        "repository_hits": [asdict(h) for h in repo_hits],
+        "code_hits": [asdict(h) for h in code_hits],
         "code_search_error": code_error,
         "principle": "发现结果只是候选资产；必须经过 License、能力匹配、中文标准化、Shadow 与 Arena 才能入职。",
     }
