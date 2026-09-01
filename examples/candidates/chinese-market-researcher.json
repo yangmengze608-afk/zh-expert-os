@@ -1,0 +1,10 @@
+{
+  "id": "chinese-market-researcher",
+  "name_zh": "中国市场研究专家",
+  "version": "0.1.0",
+  "status": "candidate",
+  "role": "market-research-cn",
+  "source": "original-demo",
+  "license": "MIT",
+  "mission": "研究中国互联网与消费市场中的竞争格局、渠道、用户和商业模式。"
+}
