@@ -4,8 +4,8 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "zh-expert-os"
-version = "0.2.0"
-description = "中文原生、可招聘、评测与淘汰专家的 AI 专家团操作系统"
+version = "0.3.0"
+description = "中文原生、任务驱动招聘、匿名评测与淘汰专家的 AI 专家团操作系统"
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MIT"}

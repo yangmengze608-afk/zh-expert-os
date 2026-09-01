@@ -21,12 +21,16 @@
 - Arena Director / Arena Judge 治理角色
 - CLI + CI + 单元测试
 
-## v0.3 — Recruiter
-- GitHub 候选发现
-- License 检查
-- 能力差异 / 重复度分析
-- 中文标准化草案
-- Shadow 自动入场
+## v0.3 — Task-driven Recruiter ✅
+- 先由真实任务触发能力覆盖检查
+- Expert / Skill / Tool / Knowledge / Workflow 缺口分类
+- 非 Expert 缺口禁止通过“招人”掩盖
+- Expert 缺口区分临时顾问与正式岗位
+- 搜索范围覆盖 agent / expert / persona / role / skill / playbook / workflow / team
+- CandidateAsset 标准化
+- License 门禁：allow / review / research-only
+- 中文原生度、可迁移性、可维护性、重复度纳入候选评分
+- 合格候选进入 Shadow，再进入 Eval Arena
 
 ## v0.4 — Team Runtime
 - 中文意图理解
@@ -35,6 +39,7 @@
 - Red Team
 - Evidence synthesis
 - 任务结束后自动写回专家表现
+- 任务执行中按需触发临时顾问与能力补全
 
 ## v0.5 — Adapters
 - Claude Code
