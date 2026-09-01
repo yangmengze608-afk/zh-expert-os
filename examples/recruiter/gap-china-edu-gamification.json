@@ -1,0 +1,14 @@
+{
+  "task_id": "product-study-pet-001",
+  "task_goal": "判断学习抽卡宠物产品是否值得做，并设计中国大学生 MVP",
+  "capability": "中国教育游戏化产品",
+  "gap_type": "expert",
+  "reason": "现役产品专家缺少中国学生场景、学习行为与游戏化机制的联合判断",
+  "recurrence_count": 4,
+  "strategic": true,
+  "criticality": 0.8,
+  "evidence": [
+    "连续多个教育产品任务需要该能力",
+    "通用产品专家无法覆盖学习激励与抽卡经济的冲突"
+  ]
+}
