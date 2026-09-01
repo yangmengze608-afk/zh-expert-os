@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "zh-expert-os"
+version = "0.1.0"
+description = "中文原生、可招聘与淘汰专家的 AI 专家团治理内核"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+authors = [{name = "Zh Expert OS contributors"}]
+dependencies = []
+
+[project.scripts]
+zh-expert-os = "zh_expert_os.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
