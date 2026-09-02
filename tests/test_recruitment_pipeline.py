@@ -65,7 +65,7 @@ class RecruitmentPipelineTests(unittest.TestCase):
 
     def test_document_becomes_auditable_candidate_dossier(self):
         client = FakePipelineClient()
-        hit = client.search_code("x")[0]
+        hit = client.search_code("SKILL.md")[0]
         dossier = analyze_candidate_document(client.fetch_candidate_document(hit), self.gap, existing_experts=[])
         self.assertEqual(dossier["candidate"]["source_type"], "skill")
         self.assertGreater(dossier["screen"]["score"], 0.7)
@@ -92,7 +92,7 @@ class RecruitmentPipelineTests(unittest.TestCase):
 
     def test_shadow_spec_cannot_be_created_from_unqualified_candidate(self):
         client = FakePipelineClient()
-        hit = client.search_code("x")[0]
+        hit = client.search_code("SKILL.md")[0]
         hit.license = "unknown"
         doc = client.fetch_candidate_document(hit)
         doc.hit.license = "unknown"
