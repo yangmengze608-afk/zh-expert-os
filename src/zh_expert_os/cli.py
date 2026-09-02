@@ -11,6 +11,8 @@ from .models import ArenaJudgment, ArenaTask, Expert, MatchRecord, QualityScores
 from .recruiter import CapabilityGap
 from .recruitment_pipeline import run_recruitment_pipeline
 from .registry import Registry
+from .runtime import load_runtime_config
+from .trial import run_runtime_trial
 
 
 def find_root() -> Path:
@@ -51,7 +53,6 @@ def cmd_recruit_pipeline(root: Path, reg: Registry, args: argparse.Namespace) ->
         max_documents=args.max_documents,
         shortlist_size=args.shortlist_size,
     )
-
     registered = []
     registration_errors = []
     if args.register_shadow > 0:
@@ -64,7 +65,6 @@ def cmd_recruit_pipeline(root: Path, reg: Registry, args: argparse.Namespace) ->
                 registration_errors.append({"id": spec.get("id"), "error": str(exc)})
     result["registered_shadow"] = registered
     result["registration_errors"] = registration_errors
-
     rendered = json.dumps(result, ensure_ascii=False, indent=2)
     if args.output:
         output = Path(args.output)
@@ -109,6 +109,24 @@ def cmd_benchmark_validate(args: argparse.Namespace) -> None:
 
 def _load_task(path: str) -> ArenaTask:
     return ArenaTask(**json.loads(Path(path).read_text(encoding="utf-8")))
+
+
+def cmd_runtime_trial(root: Path, reg: Registry, args: argparse.Namespace) -> None:
+    task = _load_task(args.task_file)
+    runtime = load_runtime_config(Path(args.runtime_config))
+    context = Path(args.context_file).read_text(encoding="utf-8") if args.context_file else ""
+    result = run_runtime_trial(
+        root,
+        reg,
+        task,
+        args.challenger,
+        args.incumbent,
+        runtime,
+        battle_id=args.battle_id,
+        context=context,
+        parallel=not args.no_parallel,
+    )
+    print(json.dumps(result, ensure_ascii=False, indent=2))
 
 
 def cmd_arena_create(root: Path, reg: Registry, args: argparse.Namespace) -> None:
@@ -171,24 +189,30 @@ def cmd_arena_show(root: Path, args: argparse.Namespace) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="zh-expert-os", description="中文 AI 专家团治理、招聘与 Eval Arena CLI")
+    p = argparse.ArgumentParser(prog="zh-expert-os", description="中文 AI 专家团治理、招聘、Runtime 与 Eval Arena CLI")
     sub = p.add_subparsers(dest="command", required=True)
-
     sub.add_parser("list", help="列出专家")
-
     show = sub.add_parser("show", help="查看专家")
     show.add_argument("expert_id")
-
     recruit = sub.add_parser("recruit", help="登记候选专家")
     recruit.add_argument("file")
 
     pipeline = sub.add_parser("recruit-pipeline", help="从任务缺口开始运行 GitHub 招聘流水线")
-    pipeline.add_argument("--gap-file", required=True, help="CapabilityGap JSON 文件")
-    pipeline.add_argument("--per-query", type=int, default=3, help="每个 GitHub 搜索词最多取多少结果")
-    pipeline.add_argument("--max-documents", type=int, default=20, help="最多读取多少个候选资产")
-    pipeline.add_argument("--shortlist-size", type=int, default=5, help="最多生成多少个 Shadow 候选")
-    pipeline.add_argument("--register-shadow", type=int, default=0, help="将前 N 个合格 Shadow 候选登记为 probation；默认只生成档案不写注册表")
-    pipeline.add_argument("--output", help="把完整招聘档案写入 JSON 文件")
+    pipeline.add_argument("--gap-file", required=True)
+    pipeline.add_argument("--per-query", type=int, default=3)
+    pipeline.add_argument("--max-documents", type=int, default=20)
+    pipeline.add_argument("--shortlist-size", type=int, default=5)
+    pipeline.add_argument("--register-shadow", type=int, default=0)
+    pipeline.add_argument("--output")
+
+    trial = sub.add_parser("runtime-trial", help="调用真实 Runtime，让挑战者和现任独立完成同一任务并自动送入 Arena")
+    trial.add_argument("--task-file", required=True)
+    trial.add_argument("--challenger", required=True)
+    trial.add_argument("--incumbent", required=True)
+    trial.add_argument("--runtime-config", required=True)
+    trial.add_argument("--context-file")
+    trial.add_argument("--battle-id")
+    trial.add_argument("--no-parallel", action="store_true")
 
     match = sub.add_parser("record-match", help="手动记录同任务盲测胜负")
     match.add_argument("--challenger", required=True)
@@ -210,37 +234,30 @@ def build_parser() -> argparse.ArgumentParser:
 
     bv = sub.add_parser("benchmark-validate", help="校验 JSONL benchmark")
     bv.add_argument("file")
-
     ac = sub.add_parser("arena-create", help="创建一个匿名 A/B battle")
     ac.add_argument("--task-file", required=True)
     ac.add_argument("--challenger", required=True)
     ac.add_argument("--incumbent", required=True)
     ac.add_argument("--battle-id")
-
     seed = sub.add_parser("arena-seed", help="从 JSONL benchmark 批量创建 battle")
     seed.add_argument("--file", required=True)
     seed.add_argument("--challenger", required=True)
     seed.add_argument("--incumbent", required=True)
-
     submit = sub.add_parser("arena-submit", help="提交专家输出")
     submit.add_argument("--battle", required=True)
     submit.add_argument("--expert", required=True)
     submit.add_argument("--file", required=True)
     submit.add_argument("--latency-ms", type=int)
     submit.add_argument("--cost-units", type=float)
-
     view = sub.add_parser("arena-view", help="生成匿名 Judge packet")
     view.add_argument("--battle", required=True)
     view.add_argument("--judge-id", required=True)
-
     judge = sub.add_parser("arena-judge", help="提交 Judge 评分 JSON")
     judge.add_argument("--battle", required=True)
     judge.add_argument("--file", required=True)
-
     fin = sub.add_parser("arena-finalize", help="聚合多 Judge 结果并写入长期战绩")
     fin.add_argument("--battle", required=True)
     fin.add_argument("--min-judges", type=int, default=3)
-
     ashow = sub.add_parser("arena-show", help="查看 battle 状态")
     ashow.add_argument("--battle", required=True)
     return p
@@ -258,6 +275,8 @@ def main() -> None:
         cmd_recruit(reg, args)
     elif args.command == "recruit-pipeline":
         cmd_recruit_pipeline(root, reg, args)
+    elif args.command == "runtime-trial":
+        cmd_runtime_trial(root, reg, args)
     elif args.command == "record-match":
         cmd_record_match(reg, args)
     elif args.command == "recommendation":
