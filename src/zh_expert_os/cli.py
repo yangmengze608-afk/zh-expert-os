@@ -8,6 +8,8 @@ from .arena_registry import ArenaRegistry
 from .benchmark import load_jsonl_tasks
 from .governance import build_personnel_case
 from .models import ArenaJudgment, ArenaTask, Expert, MatchRecord, QualityScores
+from .recruiter import CapabilityGap
+from .recruitment_pipeline import run_recruitment_pipeline
 from .registry import Registry
 
 
@@ -37,6 +39,42 @@ def cmd_recruit(reg: Registry, args: argparse.Namespace) -> None:
     data = json.loads(Path(args.file).read_text(encoding="utf-8"))
     reg.recruit(Expert(**data))
     print(f"已登记候选专家：{data['name_zh']} ({data['id']})")
+
+
+def cmd_recruit_pipeline(root: Path, reg: Registry, args: argparse.Namespace) -> None:
+    data = json.loads(Path(args.gap_file).read_text(encoding="utf-8"))
+    gap = CapabilityGap(**data)
+    result = run_recruitment_pipeline(
+        gap,
+        existing_experts=reg.list_experts(),
+        per_query=args.per_query,
+        max_documents=args.max_documents,
+        shortlist_size=args.shortlist_size,
+    )
+
+    registered = []
+    registration_errors = []
+    if args.register_shadow > 0:
+        for spec in result.get("shadow_specs", [])[: args.register_shadow]:
+            try:
+                expert = Expert(**spec)
+                reg.recruit(expert)
+                registered.append(expert.id)
+            except (ValueError, KeyError) as exc:
+                registration_errors.append({"id": spec.get("id"), "error": str(exc)})
+    result["registered_shadow"] = registered
+    result["registration_errors"] = registration_errors
+
+    rendered = json.dumps(result, ensure_ascii=False, indent=2)
+    if args.output:
+        output = Path(args.output)
+        if not output.is_absolute():
+            output = root / output
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(rendered + "\n", encoding="utf-8")
+        print(json.dumps({"status": result["status"], "output": str(output), "registered_shadow": registered}, ensure_ascii=False, indent=2))
+    else:
+        print(rendered)
 
 
 def cmd_record_match(reg: Registry, args: argparse.Namespace) -> None:
@@ -133,7 +171,7 @@ def cmd_arena_show(root: Path, args: argparse.Namespace) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="zh-expert-os", description="中文 AI 专家团治理与 Eval Arena CLI")
+    p = argparse.ArgumentParser(prog="zh-expert-os", description="中文 AI 专家团治理、招聘与 Eval Arena CLI")
     sub = p.add_subparsers(dest="command", required=True)
 
     sub.add_parser("list", help="列出专家")
@@ -143,6 +181,14 @@ def build_parser() -> argparse.ArgumentParser:
 
     recruit = sub.add_parser("recruit", help="登记候选专家")
     recruit.add_argument("file")
+
+    pipeline = sub.add_parser("recruit-pipeline", help="从任务缺口开始运行 GitHub 招聘流水线")
+    pipeline.add_argument("--gap-file", required=True, help="CapabilityGap JSON 文件")
+    pipeline.add_argument("--per-query", type=int, default=3, help="每个 GitHub 搜索词最多取多少结果")
+    pipeline.add_argument("--max-documents", type=int, default=20, help="最多读取多少个候选资产")
+    pipeline.add_argument("--shortlist-size", type=int, default=5, help="最多生成多少个 Shadow 候选")
+    pipeline.add_argument("--register-shadow", type=int, default=0, help="将前 N 个合格 Shadow 候选登记为 probation；默认只生成档案不写注册表")
+    pipeline.add_argument("--output", help="把完整招聘档案写入 JSON 文件")
 
     match = sub.add_parser("record-match", help="手动记录同任务盲测胜负")
     match.add_argument("--challenger", required=True)
@@ -210,6 +256,8 @@ def main() -> None:
         cmd_show(reg, args)
     elif args.command == "recruit":
         cmd_recruit(reg, args)
+    elif args.command == "recruit-pipeline":
+        cmd_recruit_pipeline(root, reg, args)
     elif args.command == "record-match":
         cmd_record_match(reg, args)
     elif args.command == "recommendation":
