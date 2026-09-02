@@ -26,11 +26,27 @@
 - Expert / Skill / Tool / Knowledge / Workflow 缺口分类
 - 非 Expert 缺口禁止通过“招人”掩盖
 - Expert 缺口区分临时顾问与正式岗位
-- 搜索范围覆盖 agent / expert / persona / role / skill / playbook / workflow / team
 - CandidateAsset 标准化
-- License 门禁：allow / review / research-only
+- License 门禁
 - 中文原生度、可迁移性、可维护性、重复度纳入候选评分
-- 合格候选进入 Shadow，再进入 Eval Arena
+
+### v0.3.1 — GitHub Discovery ✅
+- GitHub 仓库级候选搜索
+- GitHub 代码级候选搜索
+- 覆盖 agent / expert / role / skill / playbook / workflow / team
+- 无 Token 时安全降级到仓库级搜索
+
+### v0.3.2 — Recruitment Pipeline ✅
+- 读取候选 README / SKILL.md / Agent / Role / Playbook
+- 补齐仓库活跃度、Stars、Archived、License 等背景信息
+- 从候选文本提取岗位相关证据
+- 自动推断 source type
+- 生成可审计 CandidateAsset 档案
+- 岗位匹配 / 中文原生 / 可迁移 / 可维护 / 重复度评分
+- Shortlist 排名
+- 仅为合格且许可证允许的候选生成 Shadow / probation Expert 规格
+- `recruit-pipeline` CLI
+- 可选登记前 N 个 Shadow 候选；绝不直接转 active
 
 ## v0.4 — Team Runtime
 - 中文意图理解
@@ -40,6 +56,7 @@
 - Evidence synthesis
 - 任务结束后自动写回专家表现
 - 任务执行中按需触发临时顾问与能力补全
+- 为 Shadow 自动选择公平 baseline 并生成 Arena 任务包
 
 ## v0.5 — Adapters
 - Claude Code
