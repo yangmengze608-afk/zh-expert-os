@@ -49,6 +49,20 @@
 - 可选登记前 N 个 Shadow 候选；绝不直接转 active
 
 ## v0.4 — Team Runtime
+
+### v0.4-alpha1 — Expert Runtime Bridge ✅
+- `AgentRuntime` 抽象
+- `CommandRuntime`：外部 CLI / adapter 通过 stdin/stdout 接入
+- `CallableRuntime`：宿主和测试接入
+- Expert 配置转独立 invocation
+- Shadow / incumbent 同任务默认并行执行
+- CommandRuntime 下两个 Expert 为两个独立进程
+- 输出自动提交 Arena 并匿名 A/B
+- `runtime-trial` CLI
+- 超时、非零退出码、空输出 fail loud
+- Runtime 不拥有晋升权限
+
+### v0.4 正式版待完成
 - 中文意图理解
 - Router 自动组队
 - 并行 / 串行 workflow
@@ -57,6 +71,7 @@
 - 任务结束后自动写回专家表现
 - 任务执行中按需触发临时顾问与能力补全
 - 为 Shadow 自动选择公平 baseline 并生成 Arena 任务包
+- 可选自动 Judge Runtime，但同模型 Judge 不冒充独立证据
 
 ## v0.5 — Adapters
 - Claude Code
