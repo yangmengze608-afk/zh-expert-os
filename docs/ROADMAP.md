@@ -62,6 +62,15 @@
 - 超时、非零退出码、空输出 fail loud
 - Runtime 不拥有晋升权限
 
+### v0.4-alpha2 — Claude Skill Adapter ✅
+- `.claude/skills/zh-expert-os/SKILL.md` 作为 Claude Code 总入口
+- Skill 明确区分 Skill / Expert / Team / Tool / Plugin 的调用语义
+- 复杂任务先读取目标项目，再做 Capability Map 与最小团队编排
+- 有 subagent 能力时优先真实独立 Expert；无 subagent 时明确降级为 single-context simulation
+- 用户级 Skill 安装脚本 `adapters/claude/install.sh`
+- 支持从其他项目调用 `/zh-expert-os`
+- 新增“知流”黑客松项目调用示例
+
 ### v0.4 正式版待完成
 - 中文意图理解
 - Router 自动组队
@@ -73,8 +82,7 @@
 - 为 Shadow 自动选择公平 baseline 并生成 Arena 任务包
 - 可选自动 Judge Runtime，但同模型 Judge 不冒充独立证据
 
-## v0.5 — Adapters
-- Claude Code
+## v0.5 — More Adapters
 - Codex
 - ChatGPT
 - Cursor
