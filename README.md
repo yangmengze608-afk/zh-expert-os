@@ -2,7 +2,7 @@
 
 > 面向中文用户、能够按真实任务发现能力缺口、招聘候选、真实调用 Expert、匿名评测、晋升、降级与淘汰 AI 专家的开源专家组织框架。
 
-**当前版本：v0.4-alpha1 — Expert Runtime Bridge**
+**当前版本：v0.4-alpha2 — Claude Skill Adapter**
 
 本项目不是“几百个 Prompt 的合集”。核心问题是：**一个 AI 专家组织怎样因为真实任务而进化，并用可复现证据长期保持最强，而不是越堆越大？**
 
@@ -52,9 +52,58 @@ CAO 人事建议 → Auditor → 人类批准
 
 招聘协议见 [`docs/RECRUITER.md`](docs/RECRUITER.md)，端到端招聘见 [`docs/RECRUITMENT_PIPELINE.md`](docs/RECRUITMENT_PIPELINE.md)，Runtime 见 [`docs/RUNTIME.md`](docs/RUNTIME.md)，竞技场见 [`docs/ARENA.md`](docs/ARENA.md)。
 
-## 2. v0.4-alpha1：Expert 真的开始干活
+## 2. v0.4-alpha2：Claude Code 现在可以直接调用
 
-此前系统已经能把 GitHub 候选筛到 `probation`，但还需要人工把任务交给候选。现在新增：
+仓库新增标准 Skill 入口：
+
+```text
+.claude/skills/zh-expert-os/SKILL.md
+```
+
+在本仓库使用 Claude Code 时可以直接调用：
+
+```text
+/zh-expert-os 帮我分析当前项目，并组最小充分专家团直接推进。
+```
+
+如果要在“知流”或其他独立项目中使用，推荐安装为用户级 Skill：
+
+```bash
+git clone https://github.com/yangmengze608-afk/zh-expert-os.git
+cd zh-expert-os
+python -m pip install -e . --no-build-isolation
+bash adapters/claude/install.sh
+```
+
+安装后会把 Skill 链接到：
+
+```text
+~/.claude/skills/zh-expert-os
+```
+
+之后在任意 Claude Code 项目中都可以：
+
+```text
+/zh-expert-os <复杂任务>
+```
+
+也可以直接描述复杂、跨专业、多步骤任务，让 Claude 根据 Skill 的 `description` 自动判断是否加载。
+
+Claude Adapter 说明见 [`adapters/claude/README.md`](adapters/claude/README.md)。知流项目可直接使用的调用示例见 [`examples/claude/zhiliu-project-prompt.md`](examples/claude/zhiliu-project-prompt.md)。
+
+这个 Skill 只是**入口**，不是把 Zh Expert OS 降级成单个 Skill。运行时语义仍然是：
+
+```text
+Skill  = SAME AGENT + instructions
+Expert = independent invocation / subagent context
+Team   = multiple Expert invocations + orchestration
+Tool   = function / API / connector / CLI
+Plugin = 安装和分发这些能力的容器
+```
+
+## 3. v0.4-alpha1：Expert 真的开始干活
+
+新增：
 
 - `AgentRuntime` 运行时协议；
 - `CommandRuntime`：通过外部 CLI / 适配脚本启动独立 Agent 进程；
@@ -71,7 +120,7 @@ CAO 人事建议 → Auditor → 人类批准
 - `src/zh_expert_os/runtime.py`
 - `src/zh_expert_os/trial.py`
 
-## 3. 一条命令让 Shadow 和现任真正 PK
+## 4. 一条命令让 Shadow 和现任真正 PK
 
 Runtime 配置示例：
 
@@ -83,7 +132,7 @@ Runtime 配置示例：
 }
 ```
 
-其中适配器只需要：**stdin 读取 Prompt，stdout 输出最终答案**。
+适配器只需要：**stdin 读取 Prompt，stdout 输出最终答案**。
 
 然后执行：
 
@@ -95,28 +144,9 @@ zh-expert-os runtime-trial \
   --runtime-config runtime.json
 ```
 
-结果不是直接“谁赢”，而是：
-
-```text
-Shadow Expert ──独立 Runtime──→ Output
-Incumbent    ──独立 Runtime──→ Output
-                  ↓
-            Arena 匿名 A/B
-                  ↓
-              judging
-```
-
-随后继续已有 Arena 流程：
-
-```bash
-zh-expert-os arena-view --battle <id> --judge-id judge-1
-zh-expert-os arena-judge --battle <id> --file judgment.json
-zh-expert-os arena-finalize --battle <id>
-```
-
 Runtime Trial **不会自动晋升**，因此招聘系统依然不能绕过 Arena / Auditor / 人类治理。
 
-## 4. 招聘流水线
+## 5. 招聘流水线
 
 ```bash
 zh-expert-os recruit-pipeline \
@@ -135,18 +165,6 @@ zh-expert-os recruit-pipeline \
 
 代码级 GitHub 搜索通常需要 `GITHUB_TOKEN`；没有 Token 时仍可做仓库级发现。
 
-## 5. Skill / Expert / Team / Tool / Plugin 的运行时区别
-
-```text
-Skill   = SAME AGENT + 新 instructions
-Expert  = 独立 Agent invocation / context
-Team    = MULTIPLE EXPERT INVOCATIONS + orchestration
-Tool    = FUNCTION / API CALL
-Plugin  = 安装、注册、分发上面这些能力的容器
-```
-
-Zh Expert OS 从产品形态上是 **Expert Team Operating System**；从运行机制上最接近 **Meta-Agent / Orchestrator**。
-
 ## 6. Eval Arena
 
 已实现同题匿名 A/B、AB/BA 顺序对冲、多 Judge、事实错误硬门槛、分歧率与位置偏差监控、幂等战绩写回以及长期 Beta-Binomial 晋升证据。
@@ -160,7 +178,7 @@ Zh Expert OS 从产品形态上是 **Expert Team Operating System**；从运行�
 ```bash
 git clone https://github.com/yangmengze608-afk/zh-expert-os.git
 cd zh-expert-os
-python -m pip install -e .
+python -m pip install -e . --no-build-isolation
 python -m unittest discover -s tests -v
 ```
 
@@ -187,8 +205,9 @@ python -m unittest discover -s tests -v
 - **v0.3.1 ✅**：GitHub 仓库 / 代码候选实时发现。
 - **v0.3.2 ✅**：读取候选资产、背景调查、Shortlist、Shadow 规格与 CLI 流水线。
 - **v0.4-alpha1 ✅**：Expert Runtime Bridge；Shadow 与现任可真正执行同一任务并自动进入 Arena。
+- **v0.4-alpha2 ✅**：Claude Code Skill Adapter；可从任意项目以 `/zh-expert-os` 作为总入口。
 - **v0.4**：Team Runtime：Router 自动组队、并行/串行 Workflow、Red Team、Evidence Synthesis、任务表现写回。
-- **v0.5**：Claude / Codex / ChatGPT / Cursor 等跨平台 Adapter。
+- **v0.5**：Codex / ChatGPT / Cursor / Gemini 等更多平台 Adapter。
 - **v1.0**：中文原生、自我进化的 AI Expert OS。
 
 ## 11. 项目定位
