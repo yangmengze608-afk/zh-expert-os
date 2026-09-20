@@ -99,8 +99,8 @@ maxTurns: 6
 创建后目录状态：
 
 ```
-drwxr-xr-x  3 yangmengze staff   96 2026-09-20 23:00 .
--rw-r--r--  1 yangmengze staff 1130 2026-09-20 23:00 zeos-exp001-probe.md
+drwxr-xr-x  3 &lt;user&gt; staff   96 2026-09-20 23:00 .
+-rw-r--r--  1 &lt;user&gt; staff 1130 2026-09-20 23:00 zeos-exp001-probe.md
 ```
 
 ### 观测 1.2 — 当前会话（未 reload）即被接受
@@ -242,7 +242,7 @@ writer agent（`zeos-exp001-fswriter`，task_id `agent-1e93e82e`）原始返回�
 写入路径: /tmp/zeos-exp001-fs/witness.txt
 文件内容: SHAREDFS_CANARY_EXP001_5B7E
 ls -la /tmp/zeos-exp001-fs/ && cat /tmp/zeos-exp001-fs/witness.txt 输出:
--rw-r--r--  1 yangmengze  wheel  28 Sep 20 23:04 /tmp/zeos-exp001-fs/witness.txt
+-rw-r--r--  1 &lt;user&gt;  wheel  28 Sep 20 23:04 /tmp/zeos-exp001-fs/witness.txt
 SHAREDFS_CANARY_EXP001_5B7E
 ZEOS_EXP001_FSW_OK
 ```
@@ -551,7 +551,7 @@ PEER_MSG_RECEIVED: NO
 每个 child 的完整 transcript 落地为：
 
 ```
-~/.workbuddy/projects/Users-yangmengze-Desktop-项目思考/
+~/.workbuddy/projects/Users-&lt;user&gt;-Desktop-项目思考/
   a4a9d718-56e5-4d1f-ac4b-89f2de147920/subagents/agent-<task_id>.jsonl
 ```
 
