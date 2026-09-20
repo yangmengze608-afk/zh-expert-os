@@ -1,7 +1,7 @@
 # EXP-001 原始运行日志
 
 > 由 WorkBuddy (杨大) 在真实宿主中执行并记录。所有条目为**原始观测**，不做美化。
-> 宿主：WorkBuddy 5.5.6 / macOS 26.5.2 (25F84) / 工作目录 `/Users/yangmengze/Desktop/项目思考`
+> 宿主：WorkBuddy 5.5.6 / macOS 26.5.2 (25F84) / 工作目录 `~/Desktop/项目思考`
 > 会话 ID：`a4a9d718-56e5-4d1f-ac4b-89f2de147920`
 > 执行时间：2026-09-20 22:59 – 23:0x AEST
 
@@ -69,14 +69,14 @@ Response:
 
 ```
 === ~/.workbuddy/agents/ 测试前状态 ===
-ls: /Users/yangmengze/.workbuddy/agents/: No such file or directory
+ls: ~/.workbuddy/agents/: No such file or directory
 ```
 
 结论：测试前**该目录不存在**，用户级 agent 基线为空。
 
 ### 观测 1.1 — 创建探针文件
 
-路径：`/Users/yangmengze/.workbuddy/agents/zeos-exp001-probe.md`
+路径：`~/.workbuddy/agents/zeos-exp001-probe.md`
 创建时间：`2026-09-20 23:00:09 AEST`
 大小：1130 字节
 
@@ -551,7 +551,7 @@ PEER_MSG_RECEIVED: NO
 每个 child 的完整 transcript 落地为：
 
 ```
-/Users/yangmengze/.workbuddy/projects/Users-yangmengze-Desktop-项目思考/
+~/.workbuddy/projects/Users-yangmengze-Desktop-项目思考/
   a4a9d718-56e5-4d1f-ac4b-89f2de147920/subagents/agent-<task_id>.jsonl
 ```
 

@@ -18,7 +18,7 @@
   - 来源：`~/.workbuddy/teams/_auto_<sid>/runtime.json`（实测，非文档）
 - **OS**：macOS `26.5.2`（Build `25F84`）
 - **实验时间**：2026-09-20 22:59 – 23:10 AEST（+1000）
-- **工作目录**：`/Users/yangmengze/Desktop/项目思考`
+- **工作目录**：`~/Desktop/项目思考`
 - **会话 ID**：`a4a9d718-56e5-4d1f-ac4b-89f2de147920`
 - **已安装相关 expert / plugin**（`~/.workbuddy/plugins/cache/experts/`，共 13 个）：
 
@@ -45,7 +45,7 @@
   | task_id | `agent-8539b623` |
   | 起止 | 2026-09-20T12:59:57.951Z → 13:00:22.172Z（24s） |
   | agent_id（运行时） | `opc-resource-auditor@_auto_a4a9d718-56e5-4d1f-ac4b-89f2de147920` |
-  | transcript | `~/.workbuddy/projects/Users-yangmengze-Desktop-项目思考/a4a9d718-.../subagents/agent-8539b623.jsonl` |
+  | transcript 快照 | `~/Desktop/项目思考/EXP-001-evidence/transcripts/agent-8539b623.jsonl`（B 层，见 §H） |
 
   原始返回：
 
@@ -548,16 +548,46 @@ Error: Tool Agent not found in agent general-purpose.
 ## H. 原始日志 / 产物
 
 **不要只读总结，以下路径可直接查证。**
+**证据分两层：`A 层` 随仓库提交、ChatGPT 可直接读；`B 层` 仅存于 WorkBuddy 本机，需人工转交。**
+
+### A 层 —— 已随仓库提交（ChatGPT 可直接读取）
 
 | 内容 | 路径 |
 |---|---|
-| 逐条原始观测日志（Phase 0–5，含所有原始返回） | `coordination/experiments/EXP-001-artifacts/raw-log-phases-0-1.md` |
-| 测试 agent 定义归档（3 份） | `coordination/experiments/EXP-001-artifacts/agent-definitions/` |
 | 本报告 | `coordination/WORKBUDDY_REPORT.md` |
+| 逐条原始观测日志（Phase 0–5，含所有原始返回逐字） | `coordination/experiments/EXP-001-artifacts/raw-log-phases-0-1.md` |
+| 测试 agent 定义归档（3 份，清理前原样复制） | `coordination/experiments/EXP-001-artifacts/agent-definitions/` |
 
-**宿主侧原始 transcript（`agent-<task_id>.jsonl`，含 reasoning / function_call / tool 结果）**
+### B 层 —— 仅存于本机，未提交（含细粒度信息）
 
-根目录：`~/.workbuddy/projects/Users-yangmengze-Desktop-项目思考/a4a9d718-56e5-4d1f-ac4b-89f2de147920/subagents/`
+| 内容 | 本机路径 |
+|---|---|
+| 全部 15 个 child transcript（`agent-<task_id>.jsonl`，含 reasoning / function_call / tool 结果原文） | `~/Desktop/项目思考/EXP-001-evidence/transcripts/` |
+| 团队运行时登记快照（15 个成员的 agentType / model / backendType / status / maxTurns / 完整 prompt） | `~/Desktop/项目思考/EXP-001-evidence/runtime-snapshot.json` |
+
+**未提交原因**：本仓库为 **public**；B 层含本机绝对路径、agent ID、自动团队命名规则等细粒度信息，
+体积约 384 KB。**是否转交由 Human Owner 决定。**
+
+**按需转交清单（决定性条目）**：
+`agent-ac18cad3.jsonl`（maxTurns 反例，73 KB）·
+`agent-c278ed61.jsonl`（宿主级 `failed` 原始错误）·
+`agent-33044f52.jsonl` + `agent-0c6e48f5.jsonl`（上下文隔离）·
+`runtime-snapshot.json`（模型 / backend / maxTurns 登记）
+
+### 提交前安全核查（已执行）
+
+| 检查项 | 结果 |
+|---|---|
+| `Bearer` / `sk-` / `api_key` / `Authorization` | **0 命中** |
+| TuShare token 模式（`a3711…`） | **0 命中** |
+| `password` / `secret` | **0 命中** |
+| 44+ 位连续字母数字（疑似 token） | **0 命中** |
+| 宿主内部系统提示关键词（`You are` / `allowedBuiltinTools` / `CODEBUDDY` / `systemPrompt`） | **0 命中** |
+| `inputTokens` / `outputTokens` 等用量元数据 | 有（无害，非密钥） |
+
+**结论：A 层与 B 层均未夹带密钥、cookie 或宿主内部提示。**
+
+### child transcript 清单（供按 task_id 定位，实体在 B 层）
 
 | task_id | agent | 用途 |
 |---|---|---|
@@ -577,8 +607,9 @@ Error: Tool Agent not found in agent general-purpose.
 | `agent-498a9dac` | zeos-exp001-peerlisten | Phase 5c 横向通信 listener |
 | `agent-be83598b` | zeos-exp001-peertalk | Phase 5c 横向通信 talker |
 
-**团队运行时登记**：`~/.workbuddy/teams/_auto_a4a9d718-56e5-4d1f-ac4b-89f2de147920/runtime.json`
-（含 14 个成员的 `agentType` / `model` / `backendType` / `status` / `maxTurns`）
+**团队运行时登记**：`~/.workbuddy/teams/_auto_<sessionId>/runtime.json`
+（含 15 个成员的 `agentType` / `model` / `backendType` / `status` / `maxTurns`）
+—— 该目录由宿主自动创建、会话结束时自动清理，**快照已存入 B 层**。
 
 ---
 
@@ -684,7 +715,7 @@ Error: Tool Agent not found in agent general-purpose.
 
 ```
 $ ls -la ~/.workbuddy/agents/
-ls: /Users/yangmengze/.workbuddy/agents/: No such file or directory
+ls: ~/.workbuddy/agents/: No such file or directory
 ```
 
 → **与测试前基线完全一致**（实验前该目录同样不存在）。
@@ -695,9 +726,9 @@ ls: /Users/yangmengze/.workbuddy/agents/: No such file or directory
 |---|---|
 | `coordination/experiments/EXP-001-artifacts/agent-definitions/`（3 份 .md） | 删除前已归档，供审计测试 agent 的确切定义 |
 | `coordination/experiments/EXP-001-artifacts/raw-log-phases-0-1.md` | 逐条原始观测 |
-| 全部 15 个 `agent-<task_id>.jsonl` transcript | 宿主侧原始记录，可逐帧复核 |
+| 全部 15 个 `agent-<task_id>.jsonl` transcript | 宿主侧原始记录；**已复制到 B 层** `~/Desktop/项目思考/EXP-001-evidence/transcripts/`，未提交仓库（见 §H） |
 | `/tmp/zeos-exp001-fs/`、`/tmp/zeos-exp001-budget/`、`/tmp/zeos-exp001-budget2/` | 预算与文件系统测试的原始产物（临时目录，可随时删） |
-| `~/.workbuddy/teams/_auto_<sid>/runtime.json` | 宿主自动生成，非我创建，未做改动 |
+| `~/.workbuddy/teams/_auto_<sid>/runtime.json` | 宿主自动生成，非我创建，未做改动；**快照已存 B 层** `runtime-snapshot.json` |
 | git 分支 `backup/main-before-exp001-20260920-225929` | 合并前的回滚点 |
 
 ### 是否需要人工恢复
