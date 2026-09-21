@@ -1,7 +1,8 @@
 # WORKBUDDY REPORT — EXP-001
 
 > 状态：**COMPLETED**
-> 含 **4 处 UNKNOWN、2 处证据冲突**，以及 **2 处由执行侧引入、已就地更正的方法论错误**（见 §C.1、§E.2.1、§I.4）
+> 含 **4 处 UNKNOWN、2 处证据冲突**，**2 处由执行侧引入、已就地更正的方法论错误**（见 §C.1、§E.2.1、§I.4），
+> 以及 **1 处经 `CHATGPT_REVIEW.md` 审计发现的过度结论、已撤回并更正**（见 §F.1 更正记录）
 > 执行者：WorkBuddy / 杨大（宿主执行侧）
 > 实验对象：WorkBuddy Native Expert Reality Check
 
@@ -497,13 +498,50 @@ Error: Tool Agent not found in agent general-purpose.
 
 ### F.1 结构性约束（对 v0.5 架构最重要的一条）
 
-综合 F 节：**subagent 没有 `Agent` 工具、没有 `TeamCreate` 工具，但有 `SendMessage` 与 `TaskCreate`。**
+综合 F 节，**当前可稳定确认的是**：
 
-→ Native Expert 拓扑是**单层扁平**的：lead 可派发 member，**member 不能再派发 sub-member**。
-→ 这直接否掉了「树形 / 多层编排」的架构选项。任何编排设计必须是**一层扇出**。
+- subagent 可用工具中含 `SendMessage` / `TaskCreate`；
+- **tested member 未发现 `TeamCreate`**（两次独立调用一致，另见 `raw-log-phases-0-1.md` 第 480 / 495 行）；
+- **member → member 的 `Agent` spawning 存在冲突证据 → UNKNOWN**（见本节上方探针表）。
 
-（`Agent` 工具的冲突证据仍是 UNKNOWN；但 `TeamCreate` 缺失两次一致，
-且 teamprobe 的 `Tool Agent not found` 是宿主原始错误文本，倾向于支持"扁平"结论。）
+> **→ v0.5 暂采用 `lead → workers` 一层扁平拓扑，作为保守默认，直到 EXP-002 重测 member spawning。**
+
+**这是设计决策，不是宿主已被证明的硬限制。** 上述三条证据等级不同，**不得合并成一条结论**：
+
+| 命题 | 本次观测 | 等级 | 可否外推 |
+|---|---|---|---|
+| tested member 无 `TeamCreate` | 两次调用一致 | **OBSERVED** | 只说明「该成员没有这个工具」，**不能**推出「只有 lead 可调用」 |
+| member 可再 spawn member | 两次调用结论相反 | **UNKNOWN（证据冲突）** | **不得**断言可行**或**不可行 |
+| 「多层 / 树形编排在本宿主上不可实现」 | — | **不支持** | 该全称命题超出证据，**已撤回** |
+
+`teamprobe` 的 `Tool Agent not found` 是宿主原始错误文本，但它与 teamprobe2 的
+`MEMBER_TO_MEMBER: ALLOWED` **直接冲突**，单凭前者不足以定论 —— 同样，单凭后者也不足。
+
+**EXP-002 的重测要求**：必须拿到 child-of-child 的真实 `task_id` 与 transcript；
+**不接受工具清单自述**（自述已被证明不可靠 —— 同一 `subagent_type` 两次自述即互相矛盾）。
+
+> ⚠️ **执行者记录更正（2026-09-21，依据 `coordination/CHATGPT_REVIEW.md`，原文保留不删）**
+>
+> 本节原结论为：
+>
+> > 「Native Expert 拓扑是**单层扁平**的：lead 可派发 member，**member 不能再派发 sub-member**。
+> > 这直接**否掉了**「树形 / 多层编排」的架构选项。任何编排设计必须是**一层扇出**。」
+> >
+> > 「（`Agent` 工具的冲突证据仍是 UNKNOWN；但 `TeamCreate` 缺失两次一致，
+> > 且 teamprobe 的 `Tool Agent not found` 是宿主原始错误文本，**倾向于支持"扁平"结论**。）」
+>
+> **该结论超出证据**：它把一个 **UNKNOWN 冲突项**写成了宿主事实，
+> 且与本报告 §F 表格自己记录的 teamprobe2 反证（工具清单含 `Agent`、`MEMBER_TO_MEMBER: ALLOWED`）自相矛盾。
+> 括号里那句「倾向于支持」尤其不成立 —— 一个已判为 UNKNOWN 的冲突项，不能被单向倾斜成结论。
+>
+> | 原表述 | 更正后 |
+> |---|---|
+> | 拓扑是**单层扁平** | member spawning = **UNKNOWN**；一层扁平是 v0.5 **保守默认** |
+> | member **不能**再派发 sub-member | **不得断言**，需 EXP-002 重测 |
+> | 这**否掉了**树形 / 多层编排选项 | 该架构选项**未被否掉**，只是当前无证据支持 |
+>
+> 这是本轮**唯一阻塞 PR #7 merge 的实质问题**。
+> 原始两次探针记录（§F 表格）与 `raw-log-phases-0-1.md` 中的冲突证据**均未删除**。
 
 ---
 
@@ -659,10 +697,13 @@ Error: Tool Agent not found in agent general-purpose.
 **→ 核心闭环成立（真实调用、隔离、并发、failed 识别都成立）。**
 **→ 但 Pass 背后的成本控制前提不成立：本宿主没有可依赖的预算硬闸门。**
 
-### I.2 对 v0.5 架构影响最大的三条实测约束
+### I.2 对 v0.5 架构影响最大的三条约束（两条实测 + 一条保守默认）
 
-1. **拓扑只能是一层扁平。** subagent 无 `Agent` / 无 `TeamCreate` 工具，
-   成员不能再派发成员。多层 / 树形编排在本宿主上不可实现。
+1. **拓扑暂按一层扁平设计 —— 保守默认，不是宿主硬限制。**
+   可确认的只有：tested member 未发现 `TeamCreate`（**OBSERVED**）；
+   **member → member `Agent` spawning 是 UNKNOWN（证据冲突）**。
+   因此 v0.5 采用 `lead → workers` 一层扇出，但**不得**宣称多层 / 树形编排在本宿主上不可实现。
+   → 依据与更正记录见 §F.1。
 2. **没有可依赖的预算闸门。** agent 定义里的 `maxTurns` **不生效**（实测反例：`maxTurns: 4` → 跑完 22 步）。
    编排者只能**自己监控 + 主动 stop**；不能把成本上限写在 agent 定义里就以为安全。
    这是本次实验对原设计**最实质的一次否决**。
