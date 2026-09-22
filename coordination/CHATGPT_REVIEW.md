@@ -1,6 +1,6 @@
 # CHATGPT REVIEW — EXP-001
 
-> 状态：**REVIEWED — CONDITIONAL PASS / CHANGES REQUESTED**
+> 状态：**FINAL PASS — READY FOR REVIEW**
 >
 > 审计对象：PR #7 `exp001/workbuddy-report`
 > 审计范围：A 层公开证据（`WORKBUDDY_REPORT.md`、`raw-log-phases-0-1.md`、3 份 agent 定义）+ PR/CI 元数据。
@@ -10,18 +10,14 @@
 
 EXP-001 已经足以支持一个重要产品方向：**WorkBuddy 可以作为 Zh Expert OS 的真实 Expert 宿主，而不仅是角色模拟层。**
 
-但本 PR **暂不应 merge**，因为报告中有一条架构级结论与它自己的证据冲突：
+WorkBuddy 已在 commit `68a9318` 按审计要求完成唯一阻塞项修正：
 
-> “subagent 没有 Agent → 拓扑只能一层扁平”
+- F.1 已明确：tested member 未发现 `TeamCreate`，但 member→member `Agent` spawning 仍是 **UNKNOWN（证据冲突）**；
+- I.2 已把“单层扁平”改为 **v0.5 的保守默认**，不再声称这是宿主硬限制；
+- 原始失败/成功冲突证据均保留；
+- 对应 GitHub Actions run `35567662406` 为 `completed / success`。
 
-该结论目前不能成立。报告同时记录了：
-- 一次 `general-purpose` 调用报 `Tool Agent not found in agent general-purpose`；
-- 另一次同 `subagent_type` 明确列出 `Agent` 工具并报告 member-to-member ALLOWED。
-
-因此，**member 是否能再 spawn member = UNKNOWN**。  
-“v0.5 默认采用一层扁平拓扑”可以作为保守设计决策，但不能写成已被宿主事实证明的硬限制。
-
-在 WorkBuddy 修正 F.1 / I.2 这一过度结论后，本 PR 可进入 merge 审核。
+复核后，原阻塞项已解除。**PR #7 可以从 draft 转为 ready for review。**
 
 ---
 
@@ -132,21 +128,17 @@ EXP-001 已经足以支持一个重要产品方向：**WorkBuddy 可以作为 Zh
 
 ---
 
-## 需要 WorkBuddy 修正后再 merge 的一处架构过度结论
+## WorkBuddy 修正复核：架构过度结论已解除
 
-### F.1 / I.2：把“扁平拓扑”从宿主事实改成保守默认
+### F.1 / I.2：已把“扁平拓扑”从宿主事实改成保守默认
 
-当前报告写：
-
-> “subagent 没有 Agent / 没有 TeamCreate → 拓扑只能一层扁平”
-
-但同一报告又记录第二次 `general-purpose` 探针看到了 `Agent`，并把 member-to-member 标为 ALLOWED。
-
-所以应改为：
+复核 commit `68a9318` 后，报告现在已经明确写成：
 
 > **当前可稳定确认的是：tested member 未发现 TeamCreate；member→member Agent spawning 存在冲突证据，因此 UNKNOWN。v0.5 暂采用 lead→workers 一层扁平拓扑作为保守默认，直到 EXP-002 重测 member spawning。**
 
-这是本轮唯一阻塞 merge 的实质问题。
+同时保留了 `Tool Agent not found` 与 `MEMBER_TO_MEMBER: ALLOWED` 两组互相冲突的原始记录，并显式撤回“多层 / 树形编排在本宿主上不可实现”的全称命题。
+
+**复核结论：PASS。**
 
 ---
 
@@ -182,12 +174,10 @@ EXP-001 已经足以支持一个重要产品方向：**WorkBuddy 可以作为 Zh
 
 ## Merge Gate
 
-当前：**CHANGES REQUESTED**
+当前：**PASS — READY FOR REVIEW**
 
-满足以下条件后可以把 PR #7 从 draft 转 ready：
+- [x] WorkBuddy 已修正 `WORKBUDDY_REPORT.md` 的 F.1 / I.2：member spawning = UNKNOWN；“扁平”仅作为 v0.5 保守默认。
+- [x] 原始冲突证据完整保留，失败/成功两次记录均未删除。
+- [x] commit `68a9318` 对应 CI run `35567662406` 已通过。
 
-- [ ] WorkBuddy 修正 `WORKBUDDY_REPORT.md` 的 F.1 / I.2：member spawning 改为 UNKNOWN；“扁平”改为 v0.5 保守默认而非宿主硬限制。
-- [ ] 保留原始冲突证据，不删除失败/成功两次记录。
-- [ ] CI 继续通过。
-
-除这一处外，EXP-001 的 A 层证据与更正记录足以进入主分支，作为 v0.5 WorkBuddy Native Expert Runtime 的设计依据。
+EXP-001 的 A 层证据、更正记录与独立审计现在足以进入主分支，作为 v0.5 WorkBuddy Native Expert Runtime 的设计依据。
