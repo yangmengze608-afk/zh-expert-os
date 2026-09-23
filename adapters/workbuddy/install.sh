@@ -19,7 +19,10 @@ fi
 # Preflight first: never leave a half-installed adapter because of a late conflict.
 conflicts=0
 
-if [[ -e "$SKILL_TARGET" ]] && ! cmp -s "$SKILL_SOURCE" "$SKILL_TARGET"; then
+if [[ -L "$SKILL_TARGET" ]]; then
+  echo "Skill 目标是 symlink，拒绝安装：$SKILL_TARGET" >&2
+  conflicts=$((conflicts + 1))
+elif [[ -e "$SKILL_TARGET" ]] && ! cmp -s "$SKILL_SOURCE" "$SKILL_TARGET"; then
   echo "Skill 已存在且内容不同：$SKILL_TARGET" >&2
   conflicts=$((conflicts + 1))
 fi
@@ -27,7 +30,10 @@ fi
 for source in "$SOURCE_DIR"/*.md; do
   [[ -f "$source" ]] || continue
   target="$TARGET_DIR/$(basename "$source")"
-  if [[ -e "$target" || -L "$target" ]]; then
+  if [[ -L "$target" ]]; then
+    echo "native agent 目标是 symlink，拒绝安装：$target" >&2
+    conflicts=$((conflicts + 1))
+  elif [[ -e "$target" ]]; then
     if [[ -f "$target" ]] && cmp -s "$source" "$target"; then
       continue
     fi
