@@ -59,7 +59,7 @@ EXP-001 / EXP-002 已经把 WorkBuddy 的真实宿主边界测过一轮，v0.5-a
 安装：
 
 ```bash
-python -m pip install -e . --no-build-isolation
+python -m pip install -e .
 bash adapters/workbuddy/install.sh
 ```
 
@@ -115,7 +115,7 @@ WorkBuddy Adapter 说明见 [`adapters/workbuddy/README.md`](adapters/workbuddy/
 ```bash
 git clone https://github.com/yangmengze608-afk/zh-expert-os.git
 cd zh-expert-os
-python -m pip install -e . --no-build-isolation
+python -m pip install -e .
 bash adapters/claude/install.sh
 ```
 
@@ -222,7 +222,7 @@ zh-expert-os recruit-pipeline \
 ```bash
 git clone https://github.com/yangmengze608-afk/zh-expert-os.git
 cd zh-expert-os
-python -m pip install -e . --no-build-isolation
+python -m pip install -e .
 python -m unittest discover -s tests -v
 ```
 

@@ -24,7 +24,7 @@ EXP-001 / EXP-002 已确认的宿主边界决定了本 Adapter 的设计：
 先安装项目 CLI：
 
 ```bash
-python -m pip install -e . --no-build-isolation
+python -m pip install -e .
 ```
 
 然后：
