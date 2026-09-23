@@ -33,14 +33,16 @@ class EvidenceRef:
     parent_refs: list[str] = field(default_factory=list)
 
     def validate(self) -> None:
-        if not self.source_task_id.strip():
-            raise WorkBuddyContractError("source_task_id 不能为空")
+        if not isinstance(self.source_task_id, str) or not self.source_task_id.strip():
+            raise WorkBuddyContractError("source_task_id 必须是非空字符串")
         if self.kind not in {"tool_result", "transcript_record", "artifact", "derived"}:
             raise WorkBuddyContractError(f"未知 evidence kind: {self.kind}")
-        if not self.locator.strip():
-            raise WorkBuddyContractError("evidence locator 不能为空")
+        if not isinstance(self.locator, str) or not self.locator.strip():
+            raise WorkBuddyContractError("evidence locator 必须是非空字符串")
         if self.artifact_sha256 is not None and not _SHA256_RE.fullmatch(self.artifact_sha256):
             raise WorkBuddyContractError("artifact_sha256 必须是 64 位小写十六进制")
+        if not isinstance(self.parent_refs, list) or not all(isinstance(x, str) and x.strip() for x in self.parent_refs):
+            raise WorkBuddyContractError("parent_refs 必须是非空字符串数组")
         if self.kind == "derived" and not self.parent_refs:
             raise WorkBuddyContractError("derived evidence 必须列出 parent_refs")
 
@@ -55,6 +57,8 @@ class ArtifactRef:
     sha256: str
 
     def validate(self) -> None:
+        if not isinstance(self.relative_path, str) or not self.relative_path.strip():
+            raise WorkBuddyContractError("artifact 路径必须是非空字符串")
         p = Path(self.relative_path)
         if p.is_absolute() or ".." in p.parts or not self.relative_path.strip():
             raise WorkBuddyContractError("artifact 路径必须是无 .. 的相对路径")
@@ -73,9 +77,9 @@ class EvidenceClaim:
     evidence: list[EvidenceRef]
 
     def validate(self) -> None:
-        if not self.statement.strip():
-            raise WorkBuddyContractError("claim statement 不能为空")
-        if not 0 <= self.confidence <= 1:
+        if not isinstance(self.statement, str) or not self.statement.strip():
+            raise WorkBuddyContractError("claim statement 必须是非空字符串")
+        if isinstance(self.confidence, bool) or not isinstance(self.confidence, (int, float)) or not 0 <= self.confidence <= 1:
             raise WorkBuddyContractError("claim confidence 必须在 [0, 1]")
         if not self.evidence:
             raise WorkBuddyContractError("进入 evidence registry 的 claim 必须有 provenance")
@@ -103,14 +107,21 @@ class ExpertEnvelope:
     open_questions: list[str] = field(default_factory=list)
 
     def validate(self) -> None:
-        if not self.agent_id.strip() or not self.task_id.strip():
-            raise WorkBuddyContractError("agent_id / task_id 不能为空")
+        if (
+            not isinstance(self.agent_id, str)
+            or not self.agent_id.strip()
+            or not isinstance(self.task_id, str)
+            or not self.task_id.strip()
+        ):
+            raise WorkBuddyContractError("agent_id / task_id 必须是非空字符串")
         if self.status not in {"ok", "partial", "failed"}:
             raise WorkBuddyContractError(f"未知 envelope status: {self.status}")
-        if not 0 <= self.confidence <= 1:
-            raise WorkBuddyContractError("envelope confidence 必须在 [0, 1]")
-        if not self.summary.strip():
-            raise WorkBuddyContractError("summary 不能为空")
+        if isinstance(self.confidence, bool) or not isinstance(self.confidence, (int, float)) or not 0 <= self.confidence <= 1:
+            raise WorkBuddyContractError("envelope confidence 必须是 [0, 1] 内的数字")
+        if not isinstance(self.summary, str) or not self.summary.strip():
+            raise WorkBuddyContractError("summary 必须是非空字符串")
+        if not isinstance(self.open_questions, list) or not all(isinstance(x, str) for x in self.open_questions):
+            raise WorkBuddyContractError("open_questions 必须是字符串数组")
         for claim in self.claims:
             claim.validate()
         for artifact in self.artifacts:
@@ -138,15 +149,59 @@ class ExpertEnvelope:
             raise WorkBuddyContractError(f"ZEOS_ENVELOPE 缺少字段：{sorted(missing)}")
         if extra:
             raise WorkBuddyContractError(f"ZEOS_ENVELOPE 含未知字段：{sorted(extra)}")
-        claims = [
-            EvidenceClaim(
-                statement=row["statement"],
-                confidence=row["confidence"],
-                evidence=[EvidenceRef(**ref) for ref in row.get("evidence", [])],
-            )
-            for row in data.get("claims", [])
-        ]
-        artifacts = [ArtifactRef(**row) for row in data.get("artifacts", [])]
+        claims_raw = data["claims"]
+        artifacts_raw = data["artifacts"]
+        open_questions = data["open_questions"]
+        if not isinstance(claims_raw, list):
+            raise WorkBuddyContractError("claims 必须是数组")
+        if not isinstance(artifacts_raw, list):
+            raise WorkBuddyContractError("artifacts 必须是数组")
+        if not isinstance(open_questions, list) or not all(isinstance(x, str) for x in open_questions):
+            raise WorkBuddyContractError("open_questions 必须是字符串数组")
+
+        claims: list[EvidenceClaim] = []
+        for index, row in enumerate(claims_raw):
+            if not isinstance(row, dict):
+                raise WorkBuddyContractError(f"claims[{index}] 必须是 object")
+            claim_required = {"statement", "confidence", "evidence"}
+            claim_extra = set(row) - claim_required
+            claim_missing = claim_required - set(row)
+            if claim_missing or claim_extra:
+                raise WorkBuddyContractError(
+                    f"claims[{index}] 字段不合法：missing={sorted(claim_missing)} extra={sorted(claim_extra)}"
+                )
+            evidence_raw = row["evidence"]
+            if not isinstance(evidence_raw, list):
+                raise WorkBuddyContractError(f"claims[{index}].evidence 必须是数组")
+            refs: list[EvidenceRef] = []
+            for ref_index, ref in enumerate(evidence_raw):
+                if not isinstance(ref, dict):
+                    raise WorkBuddyContractError(f"claims[{index}].evidence[{ref_index}] 必须是 object")
+                ref_required = {"source_task_id", "kind", "locator"}
+                ref_optional = {"artifact_sha256", "parent_refs"}
+                ref_missing = ref_required - set(ref)
+                ref_extra = set(ref) - ref_required - ref_optional
+                if ref_missing or ref_extra:
+                    raise WorkBuddyContractError(
+                        f"evidence ref 字段不合法：missing={sorted(ref_missing)} extra={sorted(ref_extra)}"
+                    )
+                refs.append(
+                    EvidenceRef(
+                        source_task_id=ref["source_task_id"],
+                        kind=ref["kind"],
+                        locator=ref["locator"],
+                        artifact_sha256=ref.get("artifact_sha256"),
+                        parent_refs=ref.get("parent_refs", []),
+                    )
+                )
+            claims.append(EvidenceClaim(row["statement"], row["confidence"], refs))
+
+        artifacts: list[ArtifactRef] = []
+        for index, row in enumerate(artifacts_raw):
+            if not isinstance(row, dict) or set(row) != {"relative_path", "sha256"}:
+                raise WorkBuddyContractError(f"artifacts[{index}] 必须只含 relative_path / sha256")
+            artifacts.append(ArtifactRef(row["relative_path"], row["sha256"]))
+
         envelope = cls(
             agent_id=data["agent_id"],
             task_id=data["task_id"],
@@ -155,7 +210,7 @@ class ExpertEnvelope:
             summary=data["summary"],
             claims=claims,
             artifacts=artifacts,
-            open_questions=list(data.get("open_questions", [])),
+            open_questions=open_questions,
         )
         envelope.validate()
         return envelope
