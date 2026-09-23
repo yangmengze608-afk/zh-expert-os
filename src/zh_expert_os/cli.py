@@ -13,6 +13,7 @@ from .recruitment_pipeline import run_recruitment_pipeline
 from .registry import Registry
 from .runtime import load_runtime_config
 from .trial import run_runtime_trial
+from .workbuddy import write_native_expert
 
 
 def find_root() -> Path:
@@ -75,6 +76,19 @@ def cmd_recruit_pipeline(root: Path, reg: Registry, args: argparse.Namespace) ->
         print(json.dumps({"status": result["status"], "output": str(output), "registered_shadow": registered}, ensure_ascii=False, indent=2))
     else:
         print(rendered)
+
+
+def cmd_workbuddy_export_expert(reg: Registry, args: argparse.Namespace) -> None:
+    expert = reg.get(args.expert_id)
+    output_dir = Path(args.output_dir).expanduser()
+    path = write_native_expert(expert, output_dir, overwrite=args.force)
+    print(json.dumps({
+        "expert_id": expert.id,
+        "status": expert.status,
+        "output": str(path),
+        "native_hot_load_ready": True,
+        "note": "可调用不等于已晋升；Shadow/probation 仍需 Arena/Auditor/Human gate",
+    }, ensure_ascii=False, indent=2))
 
 
 def cmd_record_match(reg: Registry, args: argparse.Namespace) -> None:
@@ -214,6 +228,11 @@ def build_parser() -> argparse.ArgumentParser:
     trial.add_argument("--battle-id")
     trial.add_argument("--no-parallel", action="store_true")
 
+    wb = sub.add_parser("workbuddy-export-expert", help="把 Registry Expert 渲染为 WorkBuddy user-level native agent")
+    wb.add_argument("--expert", dest="expert_id", required=True)
+    wb.add_argument("--output-dir", default="~/.workbuddy/agents")
+    wb.add_argument("--force", action="store_true", help="覆盖同名 native agent 文件")
+
     match = sub.add_parser("record-match", help="手动记录同任务盲测胜负")
     match.add_argument("--challenger", required=True)
     match.add_argument("--incumbent", required=True)
@@ -277,6 +296,8 @@ def main() -> None:
         cmd_recruit_pipeline(root, reg, args)
     elif args.command == "runtime-trial":
         cmd_runtime_trial(root, reg, args)
+    elif args.command == "workbuddy-export-expert":
+        cmd_workbuddy_export_expert(reg, args)
     elif args.command == "record-match":
         cmd_record_match(reg, args)
     elif args.command == "recommendation":
