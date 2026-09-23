@@ -36,7 +36,7 @@ if command -v zh-expert-os >/dev/null 2>&1; then
   echo "zh-expert-os CLI 已可用：$(command -v zh-expert-os)"
 else
   echo "尚未发现 zh-expert-os CLI。建议执行："
-  echo "  python -m pip install -e \"$ROOT\" --no-build-isolation"
+  echo "  python -m pip install -e \"$ROOT\""
 fi
 
 echo
