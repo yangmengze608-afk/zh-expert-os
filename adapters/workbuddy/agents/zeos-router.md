@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Capability Router"
   zh: "能力路由与组队"
+maxTurns: 200
 ---
 
 # 中文任务路由官
