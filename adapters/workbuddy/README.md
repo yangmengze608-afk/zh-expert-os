@@ -19,6 +19,13 @@ EXP-001 / EXP-002 已确认的宿主边界决定了本 Adapter 的设计：
 - `coordination/experiments/EXP-001-*`
 - `coordination/experiments/EXP-002-*`
 
+### 证据版本边界
+
+- EXP-001 / EXP-002 的完整控制面实验发生在 **WorkBuddy 5.5.6**；
+- v0.5-alpha1 release smoke 在 **WorkBuddy 5.6.2** 重新验证了：普通文件安装、native router/evidence invocation、host/assignment identity 分离、envelope 校验、artifact provenance、Registry native export / candidate gate、以及顶层 Skill 的显式按名加载；
+- release smoke **没有**在 5.6.2 重新跑 TaskStop / SendMessage / nested-spawn 全套实验，因此这些控制面结论仍按 EXP-001 / EXP-002 的版本范围理解；
+- 顶层 Skill 的**显式按名加载**已验证；自然语言自动索引 / 自动触发不作为 alpha1 保证。
+
 ## 1. 安装
 
 先安装项目 CLI：
