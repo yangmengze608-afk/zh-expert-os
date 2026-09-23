@@ -1,5 +1,5 @@
 {
-  "note": "A-layer excerpt. Prompt bodies and transcriptPath are REDACTED; only control-plane fields kept.",
+  "note": "A-layer excerpt. Prompt bodies and transcriptPath are REDACTED; only control-plane fields kept. schema.member_keys is the FULL observed key set of runtime.json member objects; members[] below only keep a publishable subset of those keys (no secrets/tokens), and no member object carries any key outside member_keys. Observed maxTurns values: null (general-purpose members) and 200 (the two zeos-exp002-fingerprint-* members); see report H.3.",
   "schema": {
     "top_level_keys": [
       "createdAt",
@@ -17,6 +17,7 @@
       "backendType",
       "color",
       "cwd",
+      "maxTurns",
       "name",
       "prompt",
       "resumeSessionId",

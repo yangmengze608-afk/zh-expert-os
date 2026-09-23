@@ -171,7 +171,7 @@ rec#12 type=message              role=assistant
 
 - **`success:true` 只等于"路由层接受"**，不等于投递、更不等于消费。3/3 run 都拿到 `success:true`，
   但只有 1/3 被真正消费。**这条否掉"用 success:true 判送达"的写法。**
-- **送达与接收方回合状态相关**：
+- **在本实验中，送达与接收方回合状态存在稳定关联**（**不证明唯一或决定性因果因素**）：
   - 接收方**回合已结束**（`completed`）→ 消息**以新 user 回合送达**并被消费（run2，ACK 回到 lead）。
   - 接收方**mid-turn** → 消息在观测窗口内**从未送达**（run1 与 run3 **2/2 复现**），
     listener 之后照样收尾为 `completed`，**也没有补投**。
@@ -179,7 +179,7 @@ rec#12 type=message              role=assistant
 - ⚠️ 保留的替代解释：我的观测窗口在 listener 收尾后即结束；不能排除消息"仍在某处排队、需再次唤醒才投递"。
   本轮未构造"收尾后再次唤醒"的场景，故该分支仍为 UNKNOWN。
 
-**Conclusion:** 三层语义已分离清楚 —— `ROUTE_ACCEPTED` 恒真；`CONSUMED` 依赖接收方回合状态；`ACKED` 仅在 `CONSUMED` 成立时出现。
+**Conclusion:** 三层语义已分离清楚 —— `ROUTE_ACCEPTED` 恒真（3/3）；`CONSUMED`（**1/3**）**在本实验中与接收方回合状态存在稳定关联，但本实验不证明它是唯一或决定性因果因素**；`ACKED` 仅在 `CONSUMED` 成立时出现（1/3）。
 **Evidence level:** **OBSERVED**（正向 n=1；负向 n=2 可复现，但按 spec 对全称结论的谨慎要求不升级 VERIFIED）
 
 ---
@@ -437,8 +437,10 @@ namespace 只是**工程纪律**，且其有效性依赖**执行者守规矩**�
 
 - **message delivery contract**（本轮最实质的更新）：
   `SendMessage success:true` **只表示路由层接受**（3/3）。
-  **送达依赖接收方回合状态**：接收方回合已结束时**可被唤醒并消费**（1/1，且 ACK 回到 lead）；
+  **本实验中，送达与接收方回合状态存在稳定关联**：接收方回合已结束时**可被唤醒并消费**（1/1，且 ACK 回到 lead）；
   接收方 mid-turn 时**在观测窗口内未送达**（2/2 复现）。
+  但 3 个 run 未控制 listener 具体行为、调度时机、唤醒语义等变量 ——
+  **本实验不证明回合状态是唯一或决定性因果因素**。
   → **v0.5 契约**：跨成员通信**默认经 lead**；任何跨成员投递**必须带显式 ACK**，
   且**不得**以 `success:true` 判定送达；对 mid-turn 接收方的投递**不得假定会排队补投**。
 
@@ -497,6 +499,10 @@ namespace 只是**工程纪律**，且其有效性依赖**执行者守规矩**�
 - **⚠️ 发现 EXP-001 遗留**：`/tmp/zeos-exp001-budget`、`/tmp/zeos-exp001-budget2`、`/tmp/zeos-exp001-fs`
   **仍然存在** —— EXP-001 的 Cleanup 未清理它们。本轮**未擅自删除**（可能有留存价值），
   **提请 Human Owner 决定**是否清理。
+  - **更新（2026-09-23，实验冻结后）**：Human Owner 已授权删除，三个目录**已删除**，
+    `/tmp` 现无任何 `zeos-*` 残留。删除前已归档清单（路径/大小/时间戳/条目）到
+    **B 层** `~/Desktop/项目思考/EXP-002-evidence/notes/EXP-001-tmp-cleanup-manifest.txt`。
+    此目录不再承担唯一证据角色，故 A 层不入库该清单。
 - **未改动**：`src/`、Registry、正式 Expert 名册、既有 Runtime —— 本轮**一行未碰**。
 - **未填写**：`coordination/experiments/EXP-002-CHATGPT_REVIEW.md`（ChatGPT 独立审计）。
 - **manual recovery needed?**：**NO**。
@@ -508,7 +514,7 @@ namespace 只是**工程纪律**，且其有效性依赖**执行者守规矩**�
 | Hypothesis | Conclusion | Evidence Level | Key Evidence |
 |---|---|---|---|
 | **H1** nested spawn | **未观测到（不可用）**，限 5.5.6 / 本会话 / `general-purpose` | **OBSERVED** | 3/3 parent transcript 无 `Agent` function_call；全目录 grep 零命中；无孙代 transcript；成员靠 `ToolSearch` 确认工具缺席（**非**调用被拒） |
-| **H2** message consumed / ACK | 三层已分离：`ROUTE_ACCEPTED` 恒真（3/3）；`CONSUMED` 依赖接收方回合状态（**1/3**）；`ACKED` 仅在消费后出现（**1/3**） | **OBSERVED** | run2 `rec#8 type=message role=user` 含 token + lead 实收 `ACK:…`；run1/run3 mid-turn 下 token **0** 次出现（2/2 复现） |
+| **H2** message consumed / ACK | 三层已分离：`ROUTE_ACCEPTED` 恒真（3/3）；`CONSUMED`（**1/3**）**在本实验中与接收方回合状态稳定关联 —— 不证明唯一或决定性因果**；`ACKED` 仅在消费后出现（**1/3**） | **OBSERVED** | run2 `rec#8 type=message role=user` 含 token + lead 实收 `ACK:…`；run1/run3 mid-turn 下 token **0** 次出现（2/2 复现） |
 | **H3** TaskStop actual stop | **能实际终止** | **VERIFIED** | 2/2：工具 `cancelled` + 宿主 `cancelled` + transcript `"Interrupted by user"`/`incomplete` + 文件数冻结（6/7 后零增长）+ `DONE` 未生成 + 无最终 envelope |
 | **H4** timeout | **NOT EXPOSED IN TESTED INTERFACE** | **UNKNOWN** | `Agent`/`TaskStop`/`SendMessage`/`TeamCreate` 参数集**无** timeout/deadline；`runtime.json` 顶层与成员键**均无**该字段；`TaskOutput.timeout` 是调用方等待预算，已在 §E 明确区分 |
 | **H5** definition hot-load repeatability | **可重复** | **VERIFIED** | A、B 两个不同定义各自返回**自己**的 signature；派发 prompt 不含 signature；两份 transcript 均**零**旁路工具调用（B 的 function_call 数为 0） |
