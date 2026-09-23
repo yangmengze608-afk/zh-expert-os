@@ -1,0 +1,29 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS WorkBuddy Node State",
+  "type": "object",
+  "required": ["host_task_id", "assignment_id", "agent_id", "host_status", "envelope"],
+  "properties": {
+    "host_task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Actual task id returned by the WorkBuddy control plane."
+    },
+    "assignment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical ZEOS_TASK_ID assigned by the lead before dispatch."
+    },
+    "agent_id": {"type": "string", "minLength": 1},
+    "host_status": {
+      "enum": ["queued", "running", "completed", "cancelled", "failed", "unknown"]
+    },
+    "envelope": {
+      "oneOf": [
+        {"type": "null"},
+        {"$ref": "expert-envelope.schema.json"}
+      ]
+    }
+  },
+  "additionalProperties": false
+}
