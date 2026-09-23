@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -51,6 +53,58 @@ class WorkBuddyPackageTests(unittest.TestCase):
                 check=False,
             )
             self.assertEqual(proc.returncode, 0, proc.stderr)
+
+
+    def test_install_and_uninstall_use_regular_files_and_preserve_edits(self):
+        root = Path(__file__).resolve().parents[1]
+        install = root / "adapters" / "workbuddy" / "install.sh"
+        uninstall = root / "adapters" / "workbuddy" / "uninstall.sh"
+
+        with tempfile.TemporaryDirectory() as td:
+            temp_root = Path(td)
+            agents_dir = temp_root / "agents"
+            skills_dir = temp_root / "skills"
+            env = {
+                **os.environ,
+                "WORKBUDDY_AGENTS_DIR": str(agents_dir),
+                "WORKBUDDY_SKILLS_DIR": str(skills_dir),
+            }
+
+            for _ in range(2):
+                proc = subprocess.run(
+                    ["bash", str(install)],
+                    cwd=root,
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+                self.assertEqual(proc.returncode, 0, proc.stderr)
+
+            installed_agents = sorted(agents_dir.glob("*.md"))
+            self.assertGreaterEqual(len(installed_agents), 7)
+            self.assertTrue(all(path.is_file() and not path.is_symlink() for path in installed_agents))
+
+            skill_path = skills_dir / "zh-expert-os" / "SKILL.md"
+            self.assertTrue(skill_path.is_file())
+            self.assertFalse(skill_path.is_symlink())
+
+            edited = agents_dir / "zeos-router.md"
+            edited.write_text(edited.read_text(encoding="utf-8") + "\n# local edit\n", encoding="utf-8")
+
+            proc = subprocess.run(
+                ["bash", str(uninstall)],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertTrue(edited.exists())
+            self.assertIn("local edit", edited.read_text(encoding="utf-8"))
+            self.assertFalse(skill_path.exists())
+            self.assertEqual([edited], sorted(agents_dir.glob("*.md")))
 
 
 if __name__ == "__main__":
