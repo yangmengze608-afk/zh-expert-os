@@ -54,7 +54,7 @@ CAO 人事建议 → Auditor → 人类批准
 
 ## 2. v0.5-alpha1：WorkBuddy Native Expert Runtime
 
-EXP-001 / EXP-002 已经把 WorkBuddy 的真实宿主边界测过一轮，v0.5-alpha1 不再把“多角色 Prompt”当成专家团，而是提供 native user-level agents + 可审计控制面契约。
+EXP-001 / EXP-002 在 WorkBuddy 5.5.6 完成了控制面 Reality Check；v0.5-alpha1 又在 WorkBuddy 5.6.2 完成发布 smoke（安装、native invocation、identity/envelope、artifact provenance、export 与显式 Skill 加载）。两轮证据范围不混写。v0.5-alpha1 不再把“多角色 Prompt”当成专家团，而是提供 native user-level agents + 可审计控制面契约。
 
 安装：
 
