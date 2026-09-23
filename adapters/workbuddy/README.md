@@ -102,10 +102,16 @@ lead
 每个节点必须同时记录：
 
 ```text
+WorkBuddy host_task_id
++
+ZEOS assignment_id
++
 host task status
 +
 expert envelope status
 ```
+
+Lead 在派发 prompt 里给 worker 一个 `ZEOS_TASK_ID`；worker envelope 的 `task_id` 只回显这个 assignment id。真实 WorkBuddy host task_id 由 lead 从 `Agent` 返回单独记录，二者不能混为一谈。
 
 例如被 `TaskStop` 的 worker 可能是：
 
@@ -164,7 +170,7 @@ Lead 在所有相关 worker terminal 后重算 hash。
 任何进入 evidence registry 的 claim 都必须携带 `EvidenceRef`：
 
 ```text
-source_task_id
+source_task_id   # 指 ZEOS assignment id
 kind
 locator
 artifact_sha256?
