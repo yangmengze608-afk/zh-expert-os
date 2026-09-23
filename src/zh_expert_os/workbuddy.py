@@ -392,7 +392,11 @@ def write_native_expert(expert: Expert, output_dir: Path, overwrite: bool = Fals
     output_dir = output_dir.expanduser()
     output_dir.mkdir(parents=True, exist_ok=True)
     path = output_dir / f"{spec.id}.md"
-    if path.exists() and not overwrite:
+    if path.is_symlink():
+        if not overwrite:
+            raise FileExistsError(f"目标 symlink 已存在：{path}")
+        path.unlink()
+    elif path.exists() and not overwrite:
         raise FileExistsError(f"目标已存在：{path}")
     path.write_text(render_native_expert(spec), encoding="utf-8")
     return path
