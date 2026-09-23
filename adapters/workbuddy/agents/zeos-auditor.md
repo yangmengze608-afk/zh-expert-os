@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Evidence and Governance Auditor"
   zh: "证据与治理审计"
+maxTurns: 200
 ---
 
 # 独立审计官
