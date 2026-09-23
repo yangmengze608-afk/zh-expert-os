@@ -136,6 +136,30 @@ class WorkBuddyContractTests(unittest.TestCase):
             with self.assertRaises(FileExistsError):
                 write_native_expert(expert, Path(td))
 
+    def test_force_replaces_symlink_without_modifying_symlink_source(self):
+        expert = Expert(
+            id="shadow-demo",
+            name_zh="影子专家",
+            version="0.1",
+            status="probation",
+            role="证据研究",
+            source="test",
+            license="MIT",
+            mission="独立核验证据。",
+        )
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            source = root / "external.md"
+            source.write_text("DO NOT MODIFY", encoding="utf-8")
+            out = root / "agents"
+            out.mkdir()
+            target = out / "shadow-demo.md"
+            target.symlink_to(source)
+            path = write_native_expert(expert, out, overwrite=True)
+            self.assertEqual(source.read_text(encoding="utf-8"), "DO NOT MODIFY")
+            self.assertFalse(path.is_symlink())
+            self.assertIn("ZEOS_ENVELOPE", path.read_text(encoding="utf-8"))
+
     def test_sha256_file(self):
         with tempfile.TemporaryDirectory() as td:
             p = Path(td) / "x.txt"
