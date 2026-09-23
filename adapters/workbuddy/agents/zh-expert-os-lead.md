@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Expert Team Orchestrator"
   zh: "专家团总调度"
+maxTurns: 200
 ---
 
 # Zh Expert OS Lead
