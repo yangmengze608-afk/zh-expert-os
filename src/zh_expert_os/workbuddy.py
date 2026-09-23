@@ -368,6 +368,7 @@ def native_spec_from_expert(expert: Expert) -> NativeExpertSpec:
 {mission}
 
 ## 边界
+- Lead 应在 prompt 中给你 `ZEOS_TASK_ID` 与 `ZEOS_ARTIFACT_NAMESPACE`；最终 envelope 的 task_id 只回显该 assignment id，不猜 host task id。
 - 只处理 lead 明确分配给你的子任务，不自行扩张任务范围。
 - 不把同模型多角色当作独立证据。
 - 不读取 sibling Expert 的 artifact namespace，除非 lead 明确授权并说明原因。
