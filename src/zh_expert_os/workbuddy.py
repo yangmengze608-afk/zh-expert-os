@@ -162,22 +162,23 @@ class ExpertEnvelope:
 
 @dataclass(slots=True)
 class WorkBuddyNodeState:
-    """Host status and Expert envelope are intentionally separate dimensions."""
+    """Keep WorkBuddy host task identity separate from the lead-assigned ZEOS assignment."""
 
-    task_id: str
+    host_task_id: str
+    assignment_id: str
     agent_id: str
     host_status: HostTaskStatus
     envelope: ExpertEnvelope | None = None
 
     def validate(self) -> None:
-        if not self.task_id.strip() or not self.agent_id.strip():
-            raise WorkBuddyContractError("task_id / agent_id 不能为空")
+        if not self.host_task_id.strip() or not self.assignment_id.strip() or not self.agent_id.strip():
+            raise WorkBuddyContractError("host_task_id / assignment_id / agent_id 不能为空")
         if self.host_status not in {"queued", "running", "completed", "cancelled", "failed", "unknown"}:
             raise WorkBuddyContractError(f"未知 host status: {self.host_status}")
         if self.envelope is not None:
             self.envelope.validate()
-            if self.envelope.task_id != self.task_id:
-                raise WorkBuddyContractError("envelope.task_id 与 host task_id 不一致")
+            if self.envelope.task_id != self.assignment_id:
+                raise WorkBuddyContractError("envelope.task_id 必须等于 lead 分配的 assignment_id")
 
     @property
     def terminal(self) -> bool:
@@ -186,7 +187,8 @@ class WorkBuddyNodeState:
     def to_dict(self) -> dict:
         self.validate()
         return {
-            "task_id": self.task_id,
+            "host_task_id": self.host_task_id,
+            "assignment_id": self.assignment_id,
             "agent_id": self.agent_id,
             "host_status": self.host_status,
             "terminal": self.terminal,
