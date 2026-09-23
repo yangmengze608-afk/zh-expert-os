@@ -282,20 +282,52 @@ def _yaml_string(value: str) -> str:
 def envelope_contract_text() -> str:
     return """## Runtime 回传契约
 
-最终回答必须包含一个 `ZEOS_ENVELOPE` JSON 区块。不要伪造宿主状态、task_id、工具结果或证据。
+Lead 必须在任务 prompt 中给你：
+- `ZEOS_TASK_ID`：lead 分配的逻辑 assignment id
+- `ZEOS_ARTIFACT_NAMESPACE`：你的唯一 artifact namespace
 
-- `status`: `ok | partial | failed`
-- `confidence`: 0–1
-- `summary`: 简洁结论
-- `claims[]`: 每条 claim 必须带 provenance；没有来源的判断不要放进 evidence registry
-- `artifacts[]`: 只给相对路径 + sha256
-- `open_questions[]`: 尚未解决的问题
+最终回答必须包含一个 `ZEOS_ENVELOPE` JSON 区块。不要猜 WorkBuddy host task_id；`task_id` 只回显 `ZEOS_TASK_ID`。
 
-每条 evidence 至少包含：
-`source_task_id + kind + locator`；artifact 可再带 sha256；derived evidence 必须列 parent refs。
+```text
+ZEOS_ENVELOPE
+{
+  "agent_id": "<你的 agent name>",
+  "task_id": "<ZEOS_TASK_ID>",
+  "status": "ok | partial | failed",
+  "confidence": 0.0,
+  "summary": "简洁结论",
+  "claims": [
+    {
+      "statement": "可验证 claim",
+      "confidence": 0.0,
+      "evidence": [
+        {
+          "source_task_id": "<ZEOS_TASK_ID>",
+          "kind": "tool_result | transcript_record | artifact | derived",
+          "locator": "真实来源定位",
+          "artifact_sha256": null,
+          "parent_refs": []
+        }
+      ]
+    }
+  ],
+  "artifacts": [
+    {
+      "relative_path": "namespace 内相对路径",
+      "sha256": "64位小写 sha256"
+    }
+  ],
+  "open_questions": []
+}
+```
 
-宿主 host status 与本 envelope status 是两个维度，不得互相覆盖。若宿主在你提交 envelope 前将你 stop，你可能不会有机会回传；由 lead 根据 host status 与已落地 artifact 重建 partial。"""
-
+规则：
+- 没有可追溯来源的判断不要放进 `claims`。
+- derived evidence 必须列 `parent_refs`。
+- 没 artifact 时返回 `artifacts: []`。
+- 宿主 host status 与本 envelope status 是两个维度，不得互相覆盖。
+- 若宿主在你提交 envelope 前将你 stop，你可能不会有机会回传；由 lead 根据 host status 与已落地 artifact 重建 partial。
+"""
 
 def render_native_expert(spec: NativeExpertSpec) -> str:
     spec.validate()
