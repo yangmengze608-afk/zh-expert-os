@@ -33,15 +33,20 @@ python -m pip install -e . --no-build-isolation
 bash adapters/workbuddy/install.sh
 ```
 
-默认把本目录的 native agent 定义链接到：
+安装器同时安装两层：
 
 ```text
-~/.workbuddy/agents/
+~/.workbuddy/skills/zh-expert-os  -> adapters/workbuddy/
+~/.workbuddy/agents/*.md          -> adapters/workbuddy/agents/*.md
 ```
 
-安装器不会覆盖已有同名文件。
+- Skill 在**当前 lead/main context** 提供顶层编排契约；
+- `agents/*.md` 是真实 native workers；
+- 安装器不会覆盖已有同名 Skill / agent。
 
-可用 `WORKBUDDY_AGENTS_DIR` 指定其他目录。
+可用 `WORKBUDDY_SKILLS_DIR` / `WORKBUDDY_AGENTS_DIR` 指定其他目录。
+
+实际使用时，优先让当前主会话加载 `zh-expert-os` Skill，再由主会话调用 native workers。这样避免把 orchestrator 自己先降成一个无 nested-spawn 能力的 child。
 
 ## 2. 原生角色
 
