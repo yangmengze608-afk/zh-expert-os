@@ -63,7 +63,7 @@ python -m pip install -e . --no-build-isolation
 bash adapters/workbuddy/install.sh
 ```
 
-会把以下 native agents 链接到 `~/.workbuddy/agents/`：
+会把以下 native agents 以普通文件安装到 `~/.workbuddy/agents/`：
 
 - `zh-expert-os-lead`
 - `zeos-router`
