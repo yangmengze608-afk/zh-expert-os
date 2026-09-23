@@ -17,6 +17,18 @@ class WorkBuddyPackageTests(unittest.TestCase):
         self.assertEqual(args.expert_id, "router")
         self.assertEqual(args.output_dir, "~/.workbuddy/agents")
 
+        validate = build_parser().parse_args([
+            "workbuddy-validate-envelope",
+            "--file", "output.txt",
+            "--assignment-id", "assign-1",
+            "--agent-id", "zeos-router",
+            "--host-task-id", "agent-123",
+            "--host-status", "completed",
+        ])
+        self.assertEqual(validate.command, "workbuddy-validate-envelope")
+        self.assertEqual(validate.assignment_id, "assign-1")
+        self.assertEqual(validate.host_task_id, "agent-123")
+
     def test_workbuddy_artifacts_are_syntactically_valid(self):
         root = Path(__file__).resolve().parents[1]
         schema_paths = [
