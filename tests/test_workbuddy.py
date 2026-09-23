@@ -55,8 +55,10 @@ class WorkBuddyContractTests(unittest.TestCase):
             confidence=0.7,
             summary="预算不足，已完成部分工作",
         )
-        node = WorkBuddyNodeState("task-a", "expert-a", "cancelled", env)
+        node = WorkBuddyNodeState("host-task-123", "task-a", "expert-a", "cancelled", env)
         data = node.to_dict()
+        self.assertEqual(data["host_task_id"], "host-task-123")
+        self.assertEqual(data["assignment_id"], "task-a")
         self.assertEqual(data["host_status"], "cancelled")
         self.assertEqual(data["envelope"]["status"], "partial")
         self.assertTrue(data["terminal"])
