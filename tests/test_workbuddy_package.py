@@ -37,9 +37,15 @@ class WorkBuddyPackageTests(unittest.TestCase):
             root / "schemas" / "workbuddy-node-state.schema.json",
             root / "schemas" / "workbuddy-message-delivery.schema.json",
         ]
+        schemas = {}
         for path in schema_paths:
             data = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(data["$schema"], "https://json-schema.org/draft/2020-12/schema")
+            schemas[path.name] = data
+
+        node_schema = schemas["workbuddy-node-state.schema.json"]
+        self.assertIn("terminal", node_schema["required"])
+        self.assertIn("terminal", node_schema["properties"])
 
         agents_dir = root / "adapters" / "workbuddy" / "agents"
         agent_files = sorted(agents_dir.glob("*.md"))
@@ -66,6 +72,46 @@ class WorkBuddyPackageTests(unittest.TestCase):
             )
             self.assertEqual(proc.returncode, 0, proc.stderr)
 
+
+    def test_installer_rejects_symlink_targets_even_if_content_matches(self):
+        root = Path(__file__).resolve().parents[1]
+        install = root / "adapters" / "workbuddy" / "install.sh"
+
+        with tempfile.TemporaryDirectory() as td:
+            temp_root = Path(td)
+            agents_dir = temp_root / "agents"
+            skills_dir = temp_root / "skills"
+            agents_dir.mkdir()
+            skill_dir = skills_dir / "zh-expert-os"
+            skill_dir.mkdir(parents=True)
+
+            source_agent = root / "adapters" / "workbuddy" / "agents" / "zeos-router.md"
+            external_agent = temp_root / "external-agent.md"
+            external_agent.write_text(source_agent.read_text(encoding="utf-8"), encoding="utf-8")
+            (agents_dir / "zeos-router.md").symlink_to(external_agent)
+
+            source_skill = root / "adapters" / "workbuddy" / "SKILL.md"
+            external_skill = temp_root / "external-skill.md"
+            external_skill.write_text(source_skill.read_text(encoding="utf-8"), encoding="utf-8")
+            (skill_dir / "SKILL.md").symlink_to(external_skill)
+
+            env = {
+                **os.environ,
+                "WORKBUDDY_AGENTS_DIR": str(agents_dir),
+                "WORKBUDDY_SKILLS_DIR": str(skills_dir),
+            }
+            proc = subprocess.run(
+                ["bash", str(install)],
+                cwd=root,
+                env=env,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            self.assertEqual(proc.returncode, 2)
+            self.assertTrue((agents_dir / "zeos-router.md").is_symlink())
+            self.assertTrue((skill_dir / "SKILL.md").is_symlink())
+            self.assertIn("symlink", proc.stderr)
 
     def test_install_and_uninstall_use_regular_files_and_preserve_edits(self):
         root = Path(__file__).resolve().parents[1]
