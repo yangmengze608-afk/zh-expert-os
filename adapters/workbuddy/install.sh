@@ -2,12 +2,35 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
-SOURCE_DIR="$ROOT/adapters/workbuddy/agents"
+ADAPTER_DIR="$ROOT/adapters/workbuddy"
+SOURCE_DIR="$ADAPTER_DIR/agents"
 TARGET_DIR="${WORKBUDDY_AGENTS_DIR:-$HOME/.workbuddy/agents}"
+SKILLS_HOME="${WORKBUDDY_SKILLS_DIR:-$HOME/.workbuddy/skills}"
+SKILL_TARGET="$SKILLS_HOME/zh-expert-os"
 
-if [[ ! -d "$SOURCE_DIR" ]]; then
-  echo "未找到 WorkBuddy agent 目录：$SOURCE_DIR" >&2
+if [[ ! -f "$ADAPTER_DIR/SKILL.md" || ! -d "$SOURCE_DIR" ]]; then
+  echo "WorkBuddy Adapter 不完整：$ADAPTER_DIR" >&2
   exit 1
+fi
+
+mkdir -p "$SKILLS_HOME"
+
+if [[ -L "$SKILL_TARGET" ]]; then
+  current="$(readlink "$SKILL_TARGET")"
+  if [[ "$current" == "$ADAPTER_DIR" ]]; then
+    echo "WorkBuddy Skill 已连接：$SKILL_TARGET -> $ADAPTER_DIR"
+  else
+    echo "Skill 目标已存在且指向其他位置：$SKILL_TARGET -> $current" >&2
+    echo "为避免覆盖其他 Skill，安装终止。" >&2
+    exit 2
+  fi
+elif [[ -e "$SKILL_TARGET" ]]; then
+  echo "Skill 目标已存在：$SKILL_TARGET" >&2
+  echo "安装器不会自动覆盖。请先备份或删除后重试。" >&2
+  exit 2
+else
+  ln -s "$ADAPTER_DIR" "$SKILL_TARGET"
+  echo "已安装 WorkBuddy Skill：$SKILL_TARGET -> $ADAPTER_DIR"
 fi
 
 mkdir -p "$TARGET_DIR"
@@ -23,7 +46,7 @@ for source in "$SOURCE_DIR"/*.md; do
   if [[ -L "$target" ]]; then
     current="$(readlink "$target")"
     if [[ "$current" == "$source" ]]; then
-      echo "已连接：$target -> $source"
+      echo "已连接 native agent：$target -> $source"
       existing=$((existing + 1))
       continue
     fi
@@ -39,15 +62,16 @@ for source in "$SOURCE_DIR"/*.md; do
   fi
 
   ln -s "$source" "$target"
-  echo "已安装：$target -> $source"
+  echo "已安装 native agent：$target -> $source"
   installed=$((installed + 1))
 done
 
 echo
-echo "WorkBuddy native agents 安装完成。new=$installed existing/skipped=$existing"
-echo "目录：$TARGET_DIR"
+echo "WorkBuddy Adapter 安装完成。native_agents_new=$installed existing/skipped=$existing"
+echo "Skill：$SKILL_TARGET"
+echo "Agents：$TARGET_DIR"
 echo
-echo "注意：v0.5-alpha1 默认 lead -> workers 一层 fan-out。"
+echo "v0.5-alpha1：由当前 lead/main context 加载 zh-expert-os Skill，再 fan-out 到真实 native workers。"
 echo "不要把普通 child 当成可可靠递归 spawn 的 team lead。"
 echo
 if command -v zh-expert-os >/dev/null 2>&1; then
