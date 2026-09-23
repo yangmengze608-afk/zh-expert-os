@@ -2,21 +2,43 @@
 
 ## 目标
 
-把 Zh Expert OS 从“可模拟专家团的方法论/Runtime”推进为 **WorkBuddy Native Expert Runtime**，优先验证真实独立 Expert 是否可被宿主稳定注册、调用、隔离和编排。
+进入 **v0.5 WorkBuddy Native Expert Runtime** 的控制面验证阶段。
+
+EXP-001 已确认：WorkBuddy 能承载真实 Expert invocation，用户级 `~/.workbuddy/agents/*.md` 可在当前会话热注册；同时确认共享文件系统会形成污染通道，frontmatter `maxTurns` 不能当硬预算。
+
+现在不再重复 EXP-001。当前只解决仍会阻塞 v0.5 Runtime 的控制面 UNKNOWN。
 
 ## 当前里程碑
 
-**EXP-001：WorkBuddy Native Expert Reality Check**
+**EXP-002：WorkBuddy Control Plane — Spawn / Delivery / Stop / Timeout**
 
-在修改 Zh Expert OS 的正式 WorkBuddy Adapter 前，回答四个事实问题：
+需要回答：
 
-1. 插件包内 `agents/*.md` 是否会注册成可真实调用的独立 subagent？
-2. 用户目录 `~/.workbuddy/agents/*.md` 是否支持同等注册？
-3. 新建 agent 后，当前会话能否热发现，还是必须 reload / 新会话？
-4. 不同 subagent 的会话上下文是否隔离，失败/partial 是否可被编排者诚实回收？
+1. member → member `Agent` spawning 到底能否稳定成立？
+2. `SendMessage success:true` 与“接收方实际消费”之间是什么关系？
+3. lead 能否用 `TaskStop` 可靠停止一个正在运行的 child？
+4. 强制停止后，host task status、expert envelope、artifact 三者分别是什么状态？
+5. WorkBuddy 是否存在可实际配置并区分的 timeout 语义？
+6. 用户级 agent 定义正文的热加载是否可在第二组、不同定义上重复？
+7. 在共享文件系统前提下，独立 artifact namespace 能否作为工程纪律减少交叉污染？
 
-## 成功标准
+## 当前默认架构
 
-只有出现可审计的真实 invocation 证据，才称“真实 Expert”。同一主上下文里的角色扮演不算。
+在 EXP-002 得出结论前：
 
-实验完成后，由 ChatGPT 在 `CHATGPT_REVIEW.md` 给出 VERIFIED / OBSERVED / INFERRED / UNKNOWN 结论，再决定 v0.5 WorkBuddy Adapter 的正式架构。
+- v0.5 暂用 `lead → workers` 一层 fan-out；
+- 这只是**保守默认**，不是宿主硬限制；
+- 跨成员通信默认经 lead；
+- `maxTurns` 不参与成本硬控制；
+- 每个节点同时记录 host task status + expert envelope status；
+- “独立证据”任务必须使用独立 artifact namespace。
+
+## 完成条件
+
+WorkBuddy 完成 `coordination/experiments/EXP-002-workbuddy-control-plane.md`，回填
+`coordination/experiments/EXP-002-WORKBUDDY_REPORT.md`。
+
+随后由 ChatGPT 独立填写
+`coordination/experiments/EXP-002-CHATGPT_REVIEW.md`。
+
+只有审计通过后，才开始把这些宿主事实编码进正式 v0.5 WorkBuddy Adapter。

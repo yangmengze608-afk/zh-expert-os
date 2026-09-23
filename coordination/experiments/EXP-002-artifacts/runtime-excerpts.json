@@ -1,0 +1,205 @@
+{
+  "note": "A-layer excerpt. Prompt bodies and transcriptPath are REDACTED; only control-plane fields kept. schema.member_keys is the FULL observed key set of runtime.json member objects; members[] below only keep a publishable subset of those keys (no secrets/tokens), and no member object carries any key outside member_keys. Observed maxTurns values: null (general-purpose members) and 200 (the two zeos-exp002-fingerprint-* members); see report H.3.",
+  "schema": {
+    "top_level_keys": [
+      "createdAt",
+      "leadAgentId",
+      "leadSessionId",
+      "members",
+      "status",
+      "teamName",
+      "updatedAt",
+      "version"
+    ],
+    "member_keys": [
+      "agentId",
+      "agentType",
+      "backendType",
+      "color",
+      "cwd",
+      "maxTurns",
+      "name",
+      "prompt",
+      "resumeSessionId",
+      "status",
+      "taskDescription",
+      "taskId",
+      "transcriptPath",
+      "updatedAt"
+    ],
+    "backendType": [
+      "in-process"
+    ],
+    "model": [
+      "None"
+    ],
+    "has_timeout_or_deadline_key": false
+  },
+  "members": [
+    {
+      "name": "zeos-exp002-nested1-parent",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-fd5e68fa",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-nested2-parent",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-b7e899dd",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-nested3-parent",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-732e2c8e",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r1-listener",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-26b6fde9",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r1-talker",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-155af81a",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h3r1-worker",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "cancelled",
+      "taskId": "agent-bc5d8e33",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h5-a",
+      "agentType": "zeos-exp002-fingerprint-a",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-a0a79d25",
+      "maxTurns": 200,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h5-b",
+      "agentType": "zeos-exp002-fingerprint-b",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-0ba0e1af",
+      "maxTurns": 200,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h3r2-worker",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "cancelled",
+      "taskId": "agent-6c095538",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r2-listener",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-c2a4823a",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r2-talker",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-bfa4bd36",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h6-a",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-8c81157d",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h6-b",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-b84ee27e",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r3-listener",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-df53ae55",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    },
+    {
+      "name": "zeos-exp002-h2r3-talker",
+      "agentType": "general-purpose",
+      "backendType": "in-process",
+      "status": "completed",
+      "taskId": "agent-2d96fd1c",
+      "maxTurns": null,
+      "prompt": "<REDACTED>",
+      "cwd": "<REDACTED>",
+      "transcriptPath": "<REDACTED>"
+    }
+  ]
+}
