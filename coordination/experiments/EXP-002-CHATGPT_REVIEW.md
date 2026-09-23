@@ -1,6 +1,6 @@
 # CHATGPT REVIEW — EXP-002
 
-> 状态：**REVIEWED — CONDITIONAL PASS / CHANGES REQUESTED**
+> 状态：**FINAL PASS — READY FOR REVIEW**
 >
 > 审计对象：PR #8 `exp002/workbuddy-control-plane`
 > 审计范围：A 层公开证据（`EXP-002-WORKBUDDY_REPORT.md`、`redacted-raw-logs.md`、`runtime-excerpts.json`、两份脱敏 fingerprint agent 定义）+ PR/CI 元数据。
@@ -16,12 +16,14 @@ EXP-002 已经把 WorkBuddy v0.5 最关键的控制面边界测得足够清楚�
 - **timeout/deadline 在受测接口中未暴露**，因此保持 UNKNOWN，不能用 TaskStop 冒充。
 - **artifact namespace 是可审计工程纪律，不是安全隔离。**
 
-但当前报告仍有两处需要收紧后再进入 ready/merge：
+WorkBuddy 已在 commit `726fbb4` 完成两处审计修正，并保持原始证据不删：
 
-1. H2 把“本实验中的条件关联”写成了较强的因果/机制句式（“CONSUMED 依赖接收方回合状态”“送达依赖接收方回合状态”）。现有 3 个 run 支持的是：**本实验里只有 receiver 已结束回合的 run 被消费；两个 mid-turn run 均未消费**。它还不能证明“回合状态是唯一或决定性因果因素”。
-2. A 层 `runtime-excerpts.json` 自身存在 schema 不一致：`member_keys` 列表没有 `maxTurns`，但后面的 member 对象包含 `maxTurns`；报告又把 `maxTurns` 列为 runtime member key。公开证据应先自洽。
+1. H2 已从“消费/送达依赖回合状态”收紧为：**本实验中与 receiver 回合状态存在稳定关联，但不证明它是唯一或决定性因果因素**。run1/run2/run3 的原始 token、ACK 与 transcript 记录均保留。
+2. A 层 `runtime-excerpts.json` 已把 `maxTurns` 纳入完整的 `schema.member_keys`，并明确 `members[]` 只是可公开字段子集；公开证据现在自洽。
 
-这两处修正后，本 PR 可以进入最终 merge 审核。
+另外，EXP-001 遗留的三个 `/tmp/zeos-exp001-*` 目录已在 Human Owner 授权后删除。报告 §K 保留原始“当时仍存在”的冻结态记录，并追加 2026-09-23 的 post-freeze cleanup 更新；这种写法**可接受**，因为它没有改写历史，只记录后续状态变化。
+
+复核结果：**原 merge blocker 已全部解除。PR #8 可以从 draft 转为 ready for review。**
 
 ---
 
@@ -84,18 +86,13 @@ A 层支持：
 
 > `success:true` = 已送达/已消费
 
-但当前报告把结果进一步写成：
-
-> “CONSUMED 依赖接收方回合状态”  
-> “送达依赖接收方回合状态”
-
-这个机制性表述**略超出实验设计**。三个 run 只隔离出一个明显关联条件，但仍可能有未控变量（具体 listener 行为、调度时机、唤醒语义等）。
-
-应改成：
+WorkBuddy 已按审计要求修正为：
 
 > **在本实验中，消费只出现在 receiver 已结束回合的 run；两个 mid-turn run 均未消费。receiver turn state 与消费结果存在稳定关联，但本实验不证明它是唯一或决定性因果因素。**
 
-v0.5 工程结论不受影响：**必须显式 ACK；无 ACK 就按未确认处理。**
+这与 A 层证据一致，也保留了 listener 行为、调度时机、唤醒语义等未控变量。
+
+**复核：PASS。** v0.5 工程结论保持：必须显式 ACK；无 ACK 就按未确认处理。
 
 ---
 
@@ -222,36 +219,35 @@ raw tool result / artifact
 
 ---
 
-## A-layer Artifact Consistency Issue
+## A-layer Artifact Consistency Re-review
 
-`runtime-excerpts.json` 当前有一处公开证据自洽问题：
+`runtime-excerpts.json` 已修正：
 
-- `schema.member_keys` 列表没有 `maxTurns`；
-- 但文件中的 member objects 实际包含 `maxTurns`；
-- 报告 §A.2 / §E 又把 `maxTurns` 作为 runtime member 字段讨论。
+- `schema.member_keys` 现在包含 `maxTurns`；
+- note 明确 `member_keys` 是 runtime member objects 的完整观测键集；
+- `members[]` 被定义为其中的可公开字段子集；
+- 当前公开 member objects 没有出现 `member_keys` 之外的字段。
 
-请修正 A 层 excerpt：
-- 要么把 `maxTurns` 加入 `schema.member_keys`；
-- 要么明确 `member_keys` 是脱敏/筛选后的非完整列表，不能称完整 schema。
+这消除了上一轮指出的 A 层 schema 自洽问题。
 
-建议前者，因为 member objects 已经公开保留该字段。
+**复核：PASS。**
 
 ---
 
 ## Merge Gate
 
-当前：**CHANGES REQUESTED**
+当前：**PASS — READY FOR REVIEW**
 
 - [x] No running snapshot used as terminal evidence.
 - [x] No self-report-only nested spawn claim.
 - [x] No `success:true` conflated with message consumption.
 - [x] No TaskStop conflated with timeout.
 - [x] No namespace discipline mislabeled as security isolation.
-- [x] CI green at WorkBuddy submission commit `733db4d`.
-- [ ] H2 因果措辞收紧：从“依赖回合状态”改为“本实验中与回合状态稳定关联；不证明唯一因果”。
-- [ ] 修正 `runtime-excerpts.json` 的 `member_keys` / `maxTurns` 自洽问题。
+- [x] H2 因果措辞已收紧为“稳定关联，不证明唯一/决定性因果”。
+- [x] `runtime-excerpts.json` 的 `member_keys` / `maxTurns` 已自洽。
+- [x] WorkBuddy correction commit `726fbb4` 对应 CI run `35818228029` 已通过。
 
-满足最后两项后，PR #8 可以从 draft 转 ready。
+EXP-002 的公开证据、修正记录与独立审计现在足以进入主分支，作为 v0.5 WorkBuddy Native Expert Runtime Adapter 的控制面依据。
 
 ## Human Owner Cleanup Decision
 
