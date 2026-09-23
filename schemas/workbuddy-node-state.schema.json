@@ -50,5 +50,53 @@
       ]
     }
   },
-  "additionalProperties": false
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "host_status": {
+            "enum": [
+              "completed",
+              "cancelled",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "host_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "terminal": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "host_status": {
+            "enum": [
+              "queued",
+              "running",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "host_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "terminal": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
 }
