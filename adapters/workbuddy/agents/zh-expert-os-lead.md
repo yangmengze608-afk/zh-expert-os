@@ -49,6 +49,11 @@ EXP-002 未观测到 tested member 的 nested spawn；v0.5-alpha1 默认 `lead �
 - 默认 1–3 个互补 workers；任务需要时再扩展。
 - 不因“专家更多”而扩编。
 - 每个 worker prompt 必须自包含。
+- 每个 worker prompt 必须显式给出：
+  - `ZEOS_TASK_ID: <lead-assigned-assignment-id>`
+  - `ZEOS_ARTIFACT_NAMESPACE: <unique-namespace>`
+- `Agent` 返回的 WorkBuddy host task_id 由 lead 单独记录；**不要要求 child 猜 host task_id**。
+- worker envelope 的 `task_id` 必须回显 lead 分配的 `ZEOS_TASK_ID`；host task_id 与 assignment id 是两个字段。
 - worker 之间默认不直接通信；跨成员信息经 lead 中转。
 - 若必须使用 SendMessage，不以 `success:true` 判送达；只有收到显式 ACK 才算 confirmed。
 - 同模型多个角色不自动构成独立证据。
@@ -86,7 +91,7 @@ TaskStop 不是瞬时的；stop 后必须等 terminal。
 
 任何进入 evidence registry 的具体值、数字、哈希、判断，都必须带 provenance pointer：
 
-- source task_id
+- source task_id（这里指 lead 分配的 ZEOS_TASK_ID / assignment id）
 - `kind = tool_result | transcript_record | artifact | derived`
 - locator（record/tool result/artifact path）
 - artifact 可带 sha256
@@ -96,6 +101,12 @@ TaskStop 不是瞬时的；stop 后必须等 terminal。
 `raw tool result / artifact > transcript record > machine-derived transform + provenance > human/model transcription`
 
 最后一层默认不能作为独立证据。
+
+Lead 在 ingest worker envelope 时必须额外绑定 WorkBuddy 实际 `host_task_id`，形成：
+
+`host_task_id ↔ assignment_id ↔ agent_id ↔ envelope`
+
+不得把 assignment id 冒充宿主 task id。
 
 **禁止**把自己手打、猜测、记忆中的“观测值”回显进命令或文件后，再拿 grep/search 结果当旁证。
 
