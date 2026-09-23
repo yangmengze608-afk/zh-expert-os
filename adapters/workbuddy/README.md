@@ -33,16 +33,18 @@ python -m pip install -e . --no-build-isolation
 bash adapters/workbuddy/install.sh
 ```
 
-安装器同时安装两层：
+安装器同时安装两层**普通文件**：
 
 ```text
-~/.workbuddy/skills/zh-expert-os  -> adapters/workbuddy/
-~/.workbuddy/agents/*.md          -> adapters/workbuddy/agents/*.md
+~/.workbuddy/skills/zh-expert-os/SKILL.md
+~/.workbuddy/agents/*.md
 ```
 
 - Skill 在**当前 lead/main context** 提供顶层编排契约；
 - `agents/*.md` 是真实 native workers；
-- 安装器不会覆盖已有同名 Skill / agent。
+- 使用普通文件而不是 symlink，因为 EXP-001/002 验证的是普通 user-level agent 文件，未验证 symlink discovery；
+- 安装前会先做冲突预检，不会覆盖已有不同内容；
+- 卸载时也只删除仍与本仓库版本完全一致的文件，用户修改过的文件会保留。
 
 可用 `WORKBUDDY_SKILLS_DIR` / `WORKBUDDY_AGENTS_DIR` 指定其他目录。
 
