@@ -130,6 +130,13 @@ class ExpertEnvelope:
 
     @classmethod
     def from_dict(cls, data: dict) -> "ExpertEnvelope":
+        required = {"agent_id", "task_id", "status", "confidence", "summary", "claims", "artifacts", "open_questions"}
+        extra = set(data) - required
+        missing = required - set(data)
+        if missing:
+            raise WorkBuddyContractError(f"ZEOS_ENVELOPE 缺少字段：{sorted(missing)}")
+        if extra:
+            raise WorkBuddyContractError(f"ZEOS_ENVELOPE 含未知字段：{sorted(extra)}")
         claims = [
             EvidenceClaim(
                 statement=row["statement"],
@@ -306,6 +313,10 @@ def render_native_expert(spec: NativeExpertSpec) -> str:
 
 
 def native_spec_from_expert(expert: Expert) -> NativeExpertSpec:
+    if expert.status not in {"probation", "active", "governance"}:
+        raise WorkBuddyContractError(
+            "只有 probation / active / governance Expert 可导出为 WorkBuddy native agent"
+        )
     if not _ID_RE.fullmatch(expert.id):
         raise WorkBuddyContractError(f"Expert id 不可用于 WorkBuddy native agent: {expert.id}")
     mission = expert.mission.strip() or "按岗位职责完成分配任务，并诚实报告不确定性。"
