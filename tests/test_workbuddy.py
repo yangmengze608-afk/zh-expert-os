@@ -63,6 +63,18 @@ class WorkBuddyContractTests(unittest.TestCase):
         self.assertEqual(data["envelope"]["status"], "partial")
         self.assertTrue(data["terminal"])
 
+    def test_node_rejects_envelope_from_different_agent(self):
+        env = ExpertEnvelope(
+            agent_id="expert-b",
+            task_id="task-a",
+            status="ok",
+            confidence=0.9,
+            summary="done",
+        )
+        node = WorkBuddyNodeState("host-task-123", "task-a", "expert-a", "completed", env)
+        with self.assertRaises(WorkBuddyContractError):
+            node.validate()
+
     def test_flat_team_plan_requires_unique_namespaces(self):
         plan = WorkBuddyTeamPlan(
             lead_id="lead",
