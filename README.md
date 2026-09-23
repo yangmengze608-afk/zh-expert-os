@@ -2,7 +2,7 @@
 
 > 面向中文用户、能够按真实任务发现能力缺口、招聘候选、真实调用 Expert、匿名评测、晋升、降级与淘汰 AI 专家的开源专家组织框架。
 
-**当前版本：v0.4-alpha2 — Claude Skill Adapter**
+**当前版本：v0.5-alpha1 — WorkBuddy Native Expert Runtime**
 
 本项目不是“几百个 Prompt 的合集”。核心问题是：**一个 AI 专家组织怎样因为真实任务而进化，并用可复现证据长期保持最强，而不是越堆越大？**
 
@@ -52,7 +52,51 @@ CAO 人事建议 → Auditor → 人类批准
 
 招聘协议见 [`docs/RECRUITER.md`](docs/RECRUITER.md)，端到端招聘见 [`docs/RECRUITMENT_PIPELINE.md`](docs/RECRUITMENT_PIPELINE.md)，Runtime 见 [`docs/RUNTIME.md`](docs/RUNTIME.md)，竞技场见 [`docs/ARENA.md`](docs/ARENA.md)。
 
-## 2. v0.4-alpha2：Claude Code 现在可以直接调用
+## 2. v0.5-alpha1：WorkBuddy Native Expert Runtime
+
+EXP-001 / EXP-002 已经把 WorkBuddy 的真实宿主边界测过一轮，v0.5-alpha1 不再把“多角色 Prompt”当成专家团，而是提供 native user-level agents + 可审计控制面契约。
+
+安装：
+
+```bash
+python -m pip install -e . --no-build-isolation
+bash adapters/workbuddy/install.sh
+```
+
+会把以下 native agents 链接到 `~/.workbuddy/agents/`：
+
+- `zh-expert-os-lead`
+- `zeos-router`
+- `zeos-evidence`
+- `zeos-red-team`
+- `zeos-auditor`
+- `zeos-synthesizer`
+- `zeos-recruiter`
+
+当前 WorkBuddy 控制面约束：
+
+```text
+topology      = lead → workers（保守默认）
+budget gate   = lead 主动 TaskStop
+message       = ROUTE_ACCEPTED → CONSUMED → ACKED
+state         = host status + expert envelope 双轨
+evidence      = provenance pointer + artifact hash
+filesystem    = shared；namespace 只是工程纪律，不是安全沙箱
+timeout       = 未验证
+nested spawn  = 当前 tested 条件下未观测到，不依赖
+```
+
+把 Registry 中已经进入 Shadow / probation 的 Expert 导出为 WorkBuddy native agent：
+
+```bash
+zh-expert-os workbuddy-export-expert --expert shadow-xxxx
+```
+
+可调用不等于已晋升；仍需 real-task trial / Arena / Auditor / Human gate。
+
+WorkBuddy Adapter 说明见 [`adapters/workbuddy/README.md`](adapters/workbuddy/README.md)。知流项目调用示例见 [`examples/workbuddy/zhiliu-project-prompt.md`](examples/workbuddy/zhiliu-project-prompt.md)。
+
+## 3. v0.4-alpha2：Claude Code 现在可以直接调用
 
 仓库新增标准 Skill 入口：
 
@@ -101,7 +145,7 @@ Tool   = function / API / connector / CLI
 Plugin = 安装和分发这些能力的容器
 ```
 
-## 3. v0.4-alpha1：Expert 真的开始干活
+## 4. v0.4-alpha1：Expert 真的开始干活
 
 新增：
 
@@ -120,7 +164,7 @@ Plugin = 安装和分发这些能力的容器
 - `src/zh_expert_os/runtime.py`
 - `src/zh_expert_os/trial.py`
 
-## 4. 一条命令让 Shadow 和现任真正 PK
+## 5. 一条命令让 Shadow 和现任真正 PK
 
 Runtime 配置示例：
 
@@ -146,7 +190,7 @@ zh-expert-os runtime-trial \
 
 Runtime Trial **不会自动晋升**，因此招聘系统依然不能绕过 Arena / Auditor / 人类治理。
 
-## 5. 招聘流水线
+## 6. 招聘流水线
 
 ```bash
 zh-expert-os recruit-pipeline \
@@ -165,13 +209,13 @@ zh-expert-os recruit-pipeline \
 
 代码级 GitHub 搜索通常需要 `GITHUB_TOKEN`；没有 Token 时仍可做仓库级发现。
 
-## 6. Eval Arena
+## 7. Eval Arena
 
 已实现同题匿名 A/B、AB/BA 顺序对冲、多 Judge、事实错误硬门槛、分歧率与位置偏差监控、幂等战绩写回以及长期 Beta-Binomial 晋升证据。
 
 注意：同一个模型扮演多个 Judge 不等于多个统计独立证据。
 
-## 7. 快速开始
+## 8. 快速开始
 
 要求 Python 3.11+，核心包零第三方依赖。
 
@@ -182,7 +226,7 @@ python -m pip install -e . --no-build-isolation
 python -m unittest discover -s tests -v
 ```
 
-## 8. 当前治理角色
+## 9. 当前治理角色
 
 - `cao` — 首席专家官：发现缺口、提出招聘与人事建议；
 - `auditor` — 独立审计官；
@@ -191,13 +235,13 @@ python -m unittest discover -s tests -v
 - `arena-director` — 竞技场主持官；
 - `arena-judge` — 匿名评测裁判。
 
-## 9. 开源与许可证原则
+## 10. 开源与许可证原则
 
 核心代码使用 MIT License。MIT / Apache-2.0 / BSD / ISC 可进入标准化与 Shadow 流程但仍保留来源；MPL / GPL / LGPL / AGPL 默认 `review`；未知或缺失许可证为 `RESEARCH_ONLY`。
 
 > **借鉴架构，不做许可证洗白。**
 
-## 10. 路线图
+## 11. 路线图
 
 - **v0.1 ✅**：治理内核、专家生命周期、贝叶斯晋升、宪法、审计。
 - **v0.2 ✅**：匿名 Eval Arena、多 Judge、偏差监控、长期战绩。
@@ -207,9 +251,11 @@ python -m unittest discover -s tests -v
 - **v0.4-alpha1 ✅**：Expert Runtime Bridge；Shadow 与现任可真正执行同一任务并自动进入 Arena。
 - **v0.4-alpha2 ✅**：Claude Code Skill Adapter；可从任意项目以 `/zh-expert-os` 作为总入口。
 - **v0.4**：Team Runtime：Router 自动组队、并行/串行 Workflow、Red Team、Evidence Synthesis、任务表现写回。
-- **v0.5**：Codex / ChatGPT / Cursor / Gemini 等更多平台 Adapter。
+- **v0.5-alpha1 ✅**：WorkBuddy Native Expert Runtime；真实 native agents、TaskStop、ACK、双状态与 evidence provenance。
+- **v0.5**：用真实业务任务打通 WorkBuddy end-to-end Team Runtime。
+- **v0.6**：Codex / ChatGPT / Cursor / Gemini 等更多平台 Adapter。
 - **v1.0**：中文原生、自我进化的 AI Expert OS。
 
-## 11. 项目定位
+## 12. 项目定位
 
 > **用户像调用一个“超级 Expert”一样调用 Zh Expert OS；它在内部诊断能力、招聘候选、真正调用多个 Expert、让候选用真实任务证明自己，再由证据决定组织如何进化。**
