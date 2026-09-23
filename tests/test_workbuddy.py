@@ -78,7 +78,7 @@ class WorkBuddyContractTests(unittest.TestCase):
         with self.assertRaises(WorkBuddyContractError):
             bad.validate()
 
-    def test_renderer_does_not_emit_unreliable_max_turns(self):
+    def test_renderer_emits_compatibility_max_turns_only(self):
         spec = NativeExpertSpec(
             id="demo-expert",
             display_name_zh="示例专家",
@@ -91,7 +91,7 @@ class WorkBuddyContractTests(unittest.TestCase):
         text = render_native_expert(spec)
         self.assertIn("name: demo-expert", text)
         self.assertIn("ZEOS_ENVELOPE", text)
-        self.assertNotIn("maxTurns", text)
+        self.assertIn("maxTurns: 200", text)
 
     def test_extract_envelope_from_agent_output(self):
         text = """完成。\nZEOS_ENVELOPE\n{\n  \"agent_id\": \"a\",\n  \"task_id\": \"t\",\n  \"status\": \"ok\",\n  \"confidence\": 0.9,\n  \"summary\": \"done\",\n  \"claims\": [],\n  \"artifacts\": [],\n  \"open_questions\": []\n}\n"""
