@@ -96,6 +96,22 @@ class WorkBuddyContractTests(unittest.TestCase):
         env = extract_expert_envelope(text)
         self.assertEqual(env.agent_id, "a")
         self.assertEqual(env.status, "ok")
+        bad = text.replace('\"open_questions\": []', '\"open_questions\": [], \"unexpected\": 1')
+        with self.assertRaises(WorkBuddyContractError):
+            extract_expert_envelope(bad)
+
+    def test_candidate_cannot_be_exported_as_native_expert(self):
+        expert = Expert(
+            id="candidate-demo",
+            name_zh="候选专家",
+            version="0.1",
+            status="candidate",
+            role="研究",
+            source="test",
+            license="MIT",
+        )
+        with self.assertRaises(WorkBuddyContractError):
+            native_spec_from_expert(expert)
 
     def test_registry_expert_can_be_rendered_and_written(self):
         expert = Expert(
