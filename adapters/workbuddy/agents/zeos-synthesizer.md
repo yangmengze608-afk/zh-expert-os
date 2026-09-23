@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Claim Synthesizer"
   zh: "证据综合与冲突合并"
+maxTurns: 200
 ---
 
 # 证据综合专家
