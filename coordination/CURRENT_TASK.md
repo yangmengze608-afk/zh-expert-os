@@ -45,10 +45,22 @@ EXP-001 / EXP-002 已结束并通过独立审计。现在停止继续扩展 Real
 - 热注册 = 晋升；
 - 多个同模型 Expert = 多份独立证据。
 
+## 当前发布门
+
+代码与 CI 完成后，先执行一次**真实 WorkBuddy release smoke**：
+
+- `coordination/releases/V0.5A1_WORKBUDDY_SMOKE.md`
+- `coordination/releases/V0.5A1_WORKBUDDY_SMOKE_REPORT.md`
+
+只验证安装、native worker invocation、assignment/host task identity、envelope 校验、artifact provenance、动态 export 和 Skill discovery。
+
+这不是新的 Reality Check，不重新测试 EXP-001/002 已解决的问题。
+
 ## 完成条件
 
 - 新增 WorkBuddy runtime contract 测试全部通过；
 - 现有测试无回归；
 - PR CI green；
 - Adapter 文档与 EXP-001 / EXP-002 证据边界一致；
-- 合并后再用“知流”做第一轮真实 end-to-end 业务 trial。
+- WorkBuddy release smoke 通过 ChatGPT 复核；
+- 合并后用“知流”做第一轮真实 end-to-end 业务 trial。
