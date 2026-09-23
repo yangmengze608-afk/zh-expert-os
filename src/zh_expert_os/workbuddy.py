@@ -128,6 +128,30 @@ class ExpertEnvelope:
             "open_questions": list(self.open_questions),
         }
 
+    @classmethod
+    def from_dict(cls, data: dict) -> "ExpertEnvelope":
+        claims = [
+            EvidenceClaim(
+                statement=row["statement"],
+                confidence=row["confidence"],
+                evidence=[EvidenceRef(**ref) for ref in row.get("evidence", [])],
+            )
+            for row in data.get("claims", [])
+        ]
+        artifacts = [ArtifactRef(**row) for row in data.get("artifacts", [])]
+        envelope = cls(
+            agent_id=data["agent_id"],
+            task_id=data["task_id"],
+            status=data["status"],
+            confidence=data["confidence"],
+            summary=data["summary"],
+            claims=claims,
+            artifacts=artifacts,
+            open_questions=list(data.get("open_questions", [])),
+        )
+        envelope.validate()
+        return envelope
+
 
 @dataclass(slots=True)
 class WorkBuddyNodeState:
@@ -332,3 +356,21 @@ def sha256_file(path: Path) -> str:
         for chunk in iter(lambda: f.read(1024 * 1024), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def extract_expert_envelope(text: str) -> ExpertEnvelope:
+    """Parse the first JSON object after a ZEOS_ENVELOPE marker."""
+    marker = "ZEOS_ENVELOPE"
+    idx = text.find(marker)
+    if idx < 0:
+        raise WorkBuddyContractError("输出中缺少 ZEOS_ENVELOPE 标记")
+    start = text.find("{", idx + len(marker))
+    if start < 0:
+        raise WorkBuddyContractError("ZEOS_ENVELOPE 后缺少 JSON object")
+    try:
+        data, _ = json.JSONDecoder().raw_decode(text[start:])
+    except json.JSONDecodeError as exc:
+        raise WorkBuddyContractError(f"ZEOS_ENVELOPE JSON 无法解析：{exc}") from exc
+    if not isinstance(data, dict):
+        raise WorkBuddyContractError("ZEOS_ENVELOPE 必须是 JSON object")
+    return ExpertEnvelope.from_dict(data)
