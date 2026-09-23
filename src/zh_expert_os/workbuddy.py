@@ -15,6 +15,7 @@ HostTaskStatus = Literal["queued", "running", "completed", "cancelled", "failed"
 
 _ID_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
 _SHA256_RE = re.compile(r"^[0-9a-f]{64}$")
+_WORKBUDDY_COMPAT_MAX_TURNS = 200
 
 
 class WorkBuddyContractError(ValueError):
@@ -308,6 +309,7 @@ def render_native_expert(spec: NativeExpertSpec) -> str:
         "profession:",
         f"  en: {_yaml_string(spec.profession_en)}",
         f"  zh: {_yaml_string(spec.profession_zh)}",
+        f"maxTurns: {_WORKBUDDY_COMPAT_MAX_TURNS}",
         "---",
         "",
     ]
