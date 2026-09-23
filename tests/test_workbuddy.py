@@ -15,6 +15,7 @@ from zh_expert_os.workbuddy import (
     WorkBuddyContractError,
     WorkBuddyNodeState,
     WorkBuddyTeamPlan,
+    extract_expert_envelope,
     native_spec_from_expert,
     render_native_expert,
     sha256_file,
@@ -89,6 +90,12 @@ class WorkBuddyContractTests(unittest.TestCase):
         self.assertIn("name: demo-expert", text)
         self.assertIn("ZEOS_ENVELOPE", text)
         self.assertNotIn("maxTurns", text)
+
+    def test_extract_envelope_from_agent_output(self):
+        text = """完成。\nZEOS_ENVELOPE\n{\n  \"agent_id\": \"a\",\n  \"task_id\": \"t\",\n  \"status\": \"ok\",\n  \"confidence\": 0.9,\n  \"summary\": \"done\",\n  \"claims\": [],\n  \"artifacts\": [],\n  \"open_questions\": []\n}\n"""
+        env = extract_expert_envelope(text)
+        self.assertEqual(env.agent_id, "a")
+        self.assertEqual(env.status, "ok")
 
     def test_registry_expert_can_be_rendered_and_written(self):
         expert = Expert(
