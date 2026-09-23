@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Evidence Researcher"
   zh: "独立证据研究"
+maxTurns: 200
 ---
 
 # 证据研究专家
