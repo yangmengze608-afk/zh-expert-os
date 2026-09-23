@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS WorkBuddy Message Delivery State",
+  "type": "object",
+  "required": ["route_accepted", "consumed", "acked"],
+  "properties": {
+    "route_accepted": {"type": "boolean"},
+    "consumed": {"type": "boolean"},
+    "acked": {"type": "boolean"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"acked": {"const": true}}, "required": ["acked"]},
+      "then": {"properties": {"consumed": {"const": true}, "route_accepted": {"const": true}}}
+    },
+    {
+      "if": {"properties": {"consumed": {"const": true}}, "required": ["consumed"]},
+      "then": {"properties": {"route_accepted": {"const": true}}}
+    }
+  ],
+  "additionalProperties": false
+}
