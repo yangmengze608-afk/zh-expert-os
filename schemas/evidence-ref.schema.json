@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS Evidence Reference",
+  "type": "object",
+  "required": ["source_task_id", "kind", "locator"],
+  "properties": {
+    "source_task_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["tool_result", "transcript_record", "artifact", "derived"]},
+    "locator": {"type": "string", "minLength": 1},
+    "artifact_sha256": {
+      "type": ["string", "null"],
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "parent_refs": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "default": []
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"const": "derived"}}, "required": ["kind"]},
+      "then": {"properties": {"parent_refs": {"minItems": 1}}}
+    }
+  ],
+  "additionalProperties": false
+}
