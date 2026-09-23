@@ -47,7 +47,9 @@ EXP-001 / EXP-002 已结束并通过独立审计。现在停止继续扩展 Real
 
 ## 当前发布门
 
-代码与 CI 完成后，先执行一次**真实 WorkBuddy release smoke**：
+ChatGPT 已完成 PR #9 代码审计并修复 node schema、agent identity、symlink 安装预检与 envelope 严格校验问题。代码审计记录见 `coordination/releases/V0.5A1_CHATGPT_CODE_REVIEW.md`。
+
+**当前唯一下一步：latest HEAD CI green 后执行一次真实 WorkBuddy release smoke**：
 
 - `coordination/releases/V0.5A1_WORKBUDDY_SMOKE.md`
 - `coordination/releases/V0.5A1_WORKBUDDY_SMOKE_REPORT.md`
