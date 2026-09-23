@@ -114,6 +114,61 @@ class WorkBuddyContractTests(unittest.TestCase):
         with self.assertRaises(WorkBuddyContractError):
             extract_expert_envelope(bad)
 
+    def test_extract_envelope_rejects_wrong_container_types(self):
+        bad_open_questions = """ZEOS_ENVELOPE
+{
+  "agent_id": "a",
+  "task_id": "t",
+  "status": "ok",
+  "confidence": 0.9,
+  "summary": "done",
+  "claims": [],
+  "artifacts": [],
+  "open_questions": "not-a-list"
+}
+"""
+        with self.assertRaises(WorkBuddyContractError):
+            extract_expert_envelope(bad_open_questions)
+
+        bad_evidence = """ZEOS_ENVELOPE
+{
+  "agent_id": "a",
+  "task_id": "t",
+  "status": "ok",
+  "confidence": 0.9,
+  "summary": "done",
+  "claims": [
+    {
+      "statement": "x",
+      "confidence": 0.8,
+      "evidence": [
+        {
+          "source_task_id": "t",
+          "kind": "tool_result",
+          "locator": "tool:1",
+          "unexpected": "no"
+        }
+      ]
+    }
+  ],
+  "artifacts": [],
+  "open_questions": []
+}
+"""
+        with self.assertRaises(WorkBuddyContractError):
+            extract_expert_envelope(bad_evidence)
+
+    def test_boolean_confidence_is_rejected(self):
+        env = ExpertEnvelope(
+            agent_id="a",
+            task_id="t",
+            status="ok",
+            confidence=True,
+            summary="done",
+        )
+        with self.assertRaises(WorkBuddyContractError):
+            env.validate()
+
     def test_candidate_cannot_be_exported_as_native_expert(self):
         expert = Expert(
             id="candidate-demo",
