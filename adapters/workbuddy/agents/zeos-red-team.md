@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Adversarial Reviewer"
   zh: "反证与压力测试"
+maxTurns: 200
 ---
 
 # 红队反证专家
