@@ -216,7 +216,29 @@ WorkBuddy EXP-001/002 支持当前会话热发现 user-level agent，但：
 
 它仍必须经过 real-task trial / Arena / Auditor / Human approval。
 
-## 6. 知流
+## 6. 校验 Worker Envelope
+
+Lead 拿到 worker 最终文本后，可以把原文保存到文件，再用 CLI 做严格校验：
+
+```bash
+zh-expert-os workbuddy-validate-envelope \
+  --file worker-output.txt \
+  --assignment-id zeos-task-001 \
+  --agent-id zeos-evidence \
+  --host-task-id agent-12345678 \
+  --host-status completed
+```
+
+它会同时验证：
+- ZEOS_ENVELOPE JSON；
+- assignment id；
+- agent id；
+- provenance / artifact 基本契约；
+- host task id 与 assignment id 的双状态绑定。
+
+不要把 WorkBuddy host task id 塞进 worker envelope 的 `task_id`；worker 在派发前拿不到这个值。
+
+## 7. 知流
 
 见：
 
@@ -224,7 +246,7 @@ WorkBuddy EXP-001/002 支持当前会话热发现 user-level agent，但：
 
 目标仍然是把“知流”做成可运行、可测试的产品；Expert OS 只是内部组织方式，不应把项目变成 Agent demo。
 
-## 7. 当前限制
+## 8. 当前限制
 
 v0.5-alpha1 **不宣称**：
 
