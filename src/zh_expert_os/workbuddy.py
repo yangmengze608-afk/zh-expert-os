@@ -180,6 +180,8 @@ class WorkBuddyNodeState:
             self.envelope.validate()
             if self.envelope.task_id != self.assignment_id:
                 raise WorkBuddyContractError("envelope.task_id 必须等于 lead 分配的 assignment_id")
+            if self.envelope.agent_id != self.agent_id:
+                raise WorkBuddyContractError("envelope.agent_id 必须等于节点 agent_id")
 
     @property
     def terminal(self) -> bool:
