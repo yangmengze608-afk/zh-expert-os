@@ -7,6 +7,7 @@ displayName:
 profession:
   en: "Expert Recruiter"
   zh: "任务驱动招聘"
+maxTurns: 200
 ---
 
 # 专家招聘官
