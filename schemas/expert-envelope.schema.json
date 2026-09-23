@@ -39,7 +39,7 @@
           "relative_path": {
             "type": "string",
             "minLength": 1,
-            "not": {"pattern": "(^/|(^|/)\.\.(/|$))"}
+            "not": {"pattern": "(^/|(^|/)[.][.](/|$))"}
           },
           "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
         },
