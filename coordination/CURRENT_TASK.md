@@ -32,7 +32,7 @@ EXP-001 / EXP-002 已结束并通过独立审计。现在停止继续扩展 Real
 5. evidence provenance pointer；
 6. artifact 相对路径 + sha256；
 7. Registry Expert → WorkBuddy native agent 导出 CLI；
-8. 知流真实项目调用示例；
+8. 真实项目调用示例（现保留知流样例作为历史/参考模板）；
 9. 单元测试与文档。
 
 ## 明确不做
@@ -49,7 +49,9 @@ EXP-001 / EXP-002 已结束并通过独立审计。现在停止继续扩展 Real
 
 ChatGPT 已完成 PR #9 代码审计并修复 node schema、agent identity、symlink 安装预检与 envelope 严格校验问题。代码审计记录见 `coordination/releases/V0.5A1_CHATGPT_CODE_REVIEW.md`。
 
-**当前唯一下一步：latest HEAD CI green 后执行一次真实 WorkBuddy release smoke**：
+**release smoke 已完成并通过 ChatGPT 终审；当前下一步是合并 PR #9。**
+
+已完成的真实 WorkBuddy release smoke：
 
 - `coordination/releases/V0.5A1_WORKBUDDY_SMOKE.md`
 - `coordination/releases/V0.5A1_WORKBUDDY_SMOKE_REPORT.md`
@@ -65,4 +67,4 @@ ChatGPT 已完成 PR #9 代码审计并修复 node schema、agent identity、sym
 - PR CI green；
 - Adapter 文档与 EXP-001 / EXP-002 证据边界一致；
 - WorkBuddy release smoke 通过 ChatGPT 复核；
-- 合并后用“知流”做第一轮真实 end-to-end 业务 trial。
+- 合并后选择**当前仍在真实推进的项目**做第一轮 end-to-end 业务 trial，不再把“知流”作为下一阶段默认目标。
