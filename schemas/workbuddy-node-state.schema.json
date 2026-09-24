@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Zh Expert OS WorkBuddy Node State",
+  "type": "object",
+  "required": [
+    "host_task_id",
+    "assignment_id",
+    "agent_id",
+    "host_status",
+    "terminal",
+    "envelope"
+  ],
+  "properties": {
+    "host_task_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Actual task id returned by the WorkBuddy control plane."
+    },
+    "assignment_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Logical ZEOS_TASK_ID assigned by the lead before dispatch."
+    },
+    "agent_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "host_status": {
+      "enum": [
+        "queued",
+        "running",
+        "completed",
+        "cancelled",
+        "failed",
+        "unknown"
+      ]
+    },
+    "terminal": {
+      "type": "boolean",
+      "description": "Derived terminal flag. True iff host_status is completed/cancelled/failed."
+    },
+    "envelope": {
+      "oneOf": [
+        {
+          "type": "null"
+        },
+        {
+          "$ref": "expert-envelope.schema.json"
+        }
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "host_status": {
+            "enum": [
+              "completed",
+              "cancelled",
+              "failed"
+            ]
+          }
+        },
+        "required": [
+          "host_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "terminal": {
+            "const": true
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "host_status": {
+            "enum": [
+              "queued",
+              "running",
+              "unknown"
+            ]
+          }
+        },
+        "required": [
+          "host_status"
+        ]
+      },
+      "then": {
+        "properties": {
+          "terminal": {
+            "const": false
+          }
+        }
+      }
+    }
+  ]
+}

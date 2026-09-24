@@ -29,7 +29,7 @@ Claude Code 里的 `.claude/skills/zh-expert-os/SKILL.md` 只是**入口适配�
 ```bash
 git clone https://github.com/yangmengze608-afk/zh-expert-os.git
 cd zh-expert-os
-python -m pip install -e . --no-build-isolation
+python -m pip install -e .
 ```
 
 然后运行：

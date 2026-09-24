@@ -82,7 +82,29 @@
 - 为 Shadow 自动选择公平 baseline 并生成 Arena 任务包
 - 可选自动 Judge Runtime，但同模型 Judge 不冒充独立证据
 
-## v0.5 — More Adapters
+## v0.5 — WorkBuddy Native Expert Runtime
+
+### v0.5-alpha1 — Flat Native Runtime ✅
+- EXP-001 / EXP-002 宿主 Reality Check
+- user-level native Expert 热注册
+- `lead → workers` 一层 fan-out 保守拓扑
+- `TaskStop` 主动生命周期/成本闸门
+- host status + expert envelope 双状态
+- `ROUTE_ACCEPTED / CONSUMED / ACKED` 三层消息语义
+- artifact namespace + lead 终态 hash 重算
+- machine-readable evidence provenance
+- Registry Expert → WorkBuddy native agent 导出 CLI
+- Router / Evidence / Red Team / Auditor / Synthesizer / Recruiter native agents
+- 知流真实项目调用样例
+
+### v0.5 后续
+- 用真实业务任务做 end-to-end WorkBuddy trial
+- Lead 自动解析 envelope / 汇总 claim registry
+- 任务预算监控与自动 TaskStop
+- Shadow 自动 native 化 + Arena 回写
+- WorkBuddy 顶层 Expert 包分发格式（待宿主正式打包接口验证）
+
+## v0.6 — More Adapters
 - Codex
 - ChatGPT
 - Cursor
