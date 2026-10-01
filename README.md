@@ -16,6 +16,24 @@
 6. **Expert 必须真的运行。** Skill 是同一 Agent 加载方法；Expert 是独立 invocation；Team 是多个 Expert invocation + orchestration。
 7. **招聘是手段，完成原始任务才是目的。**
 
+## Gate-based Expert Governance
+
+Zh Expert OS 不把“每个开发阶段都开专家会”当作专业。默认原则是：
+
+> **Expert review is triggered by decision risk and product maturity, not implementation cadence.**
+
+默认不调用专家。只有四类 Gate：
+
+- **DIRECTION**：产品/架构/pivot 等高返工决策；
+- **PROTOTYPE**：核心产品闭环已经真实跑通，需要整体审查；
+- **RELEASE**：准备公开发布、比赛/申请提交、生产 beta 等外部承诺；
+- **CRITICAL_RISK**：安全、隐私、许可证、数据损失、危险执行等高后果风险。
+
+普通 bug、测试、lint、文档、小型 refactor 不触发 Expert Team。
+
+一个 Gate 默认只用 **1 个最相关领域 Expert + Auditor 或 Red Team 二选一**。没有 P0/P1 就结束；P2 只记录。只有 P0/P1 修复后允许一次 targeted re-review。
+
+详细规则见 [`docs/GATE_GOVERNANCE.md`](docs/GATE_GOVERNANCE.md)。
 ## 1. 已打通的自我进化闭环
 
 ```text
