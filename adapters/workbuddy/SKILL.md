@@ -40,7 +40,45 @@ description: "WorkBuddy 上的 Zh Expert OS 顶层调度入口。用于复杂真
 
 只有 Expert gap 才进入招聘。
 
-## 2. Minimal Team
+## 2. Review Gate Preflight
+
+**不要按 Phase / commit 机械启动专家团。** 在 spawn 任何 worker 之前，先判断是否真的进入专家审查 Gate。
+
+```text
+EXPERT_REVIEW_DECISION
+Decision: INVOKE | SKIP
+Gate: DIRECTION | PROTOTYPE | RELEASE | CRITICAL_RISK | NONE
+Reason: ...
+```
+
+默认 `SKIP`。只有以下情况允许 `INVOKE`：
+
+- `DIRECTION`：高返工代价的产品/架构/依赖/pivot 决策；
+- `PROTOTYPE`：核心产品闭环已有真实 artifact，需要整体审查；
+- `RELEASE`：准备对外发布、提交、申请或承诺；
+- `CRITICAL_RISK`：安全、隐私、许可证、数据损失、危险执行或不可逆操作。
+
+普通 bug、测试、lint、命名、文档、小型 refactor、增量 parser 支持不触发 Expert Team。
+
+若 `Decision: SKIP`：
+- 不 spawn Router / Auditor / Red Team；
+- lead/main 直接继续完成用户任务；
+- 不把“没叫专家”当成治理失败。
+
+### Gate 预算
+
+每个 Gate 默认只用：
+- 1 个最相关领域 worker；
+- + `zeos-auditor` **或** `zeos-red-team` 之一。
+
+只有存在明确双重风险时才同时用 Auditor + Red Team。
+
+先给 worker 最小 Review Packet（决策、相关 diff/artifact、测试、known risks/unknowns），不要默认让其重读完整仓库。
+
+没有 P0/P1 就立即关闭 Gate。P2 不阻塞，也不触发复审。P0/P1 修复后最多一次 targeted re-review。
+
+相同 artifact / commit 未显著变化时禁止重复跑同一 Gate，除非有新关键证据或用户明确要求。
+## 3. Minimal Team
 
 默认 1–3 个 workers，优先：
 - `zeos-router`
@@ -64,7 +102,7 @@ description: "WorkBuddy 上的 Zh Expert OS 顶层调度入口。用于复杂真
 
 不要要求 child 猜 host task_id。
 
-## 3. Flat Control Plane
+## 4. Flat Control Plane
 
 v0.5-alpha1 默认：
 
@@ -84,7 +122,7 @@ worker 之间默认不直连；信息经 lead 中转。
 - consumed ≠ acked
 - 只有显式 ACK 才算 confirmed
 
-## 4. Budget and Stop
+## 5. Budget and Stop
 
 frontmatter 的 `maxTurns` 仅作为宿主兼容元数据，**不是可靠预算闸门**。
 
@@ -101,7 +139,7 @@ frontmatter 的 `maxTurns` 仅作为宿主兼容元数据，**不是可靠预算
 
 不要伪造 child envelope。
 
-## 5. Evidence
+## 6. Evidence
 
 任何进入 evidence registry 的值必须可追溯。
 
@@ -115,7 +153,7 @@ Lead ingest 时绑定实际 WorkBuddy host task_id 和 transcript/tool/artifact 
 
 禁止把自己手打/猜测的“观测值”写进命令或文件，再把搜索命中当旁证。
 
-## 6. Artifact Discipline
+## 7. Artifact Discipline
 
 每个 worker 只知道自己的 namespace。
 
@@ -127,7 +165,7 @@ Worker 只返回相对路径 + sha256。
 
 这是工程纪律，不是安全 sandbox。
 
-## 7. Recruitment
+## 8. Recruitment
 
 若确认是 Expert gap：
 1. 定义岗位；
@@ -140,7 +178,7 @@ Worker 只返回相对路径 + sha256。
 7. Human approval；
 8. 才能 Active。
 
-## 8. Synthesis
+## 9. Synthesis
 
 不做多数投票。
 
