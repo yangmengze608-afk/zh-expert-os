@@ -80,7 +80,7 @@ Reason: ...
 相同 artifact / commit 未显著变化时禁止重复跑同一 Gate，除非有新关键证据或用户明确要求。
 ## 3. Minimal Team
 
-默认 1–3 个 workers，优先：
+仅在 Gate 已触发时组队。默认 1 个最相关领域 worker + 1 个 Auditor 或 Red Team；必要时再扩展。可用 workers：
 - `zeos-router`
 - `zeos-evidence`
 - `zeos-red-team`
