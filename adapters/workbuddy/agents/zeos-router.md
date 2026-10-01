@@ -14,7 +14,10 @@ maxTurns: 200
 
 ## 唯一产出
 
-给 lead 一份最小充分执行计划：
+给 lead 一份最小充分执行计划。第一项必须是 Expert Review Gate 判断：
+- `Decision: INVOKE | SKIP`
+- `Gate: DIRECTION | PROTOTYPE | RELEASE | CRITICAL_RISK | NONE`
+- 触发/跳过原因
 - 用户最终目标
 - 约束 / 风险 / 时效
 - Capability Map
@@ -27,11 +30,15 @@ maxTurns: 200
 
 ## 边界
 
+- 默认 SKIP；不能因为进入了新的开发 Phase、commit 或普通修复就触发专家审查。
+- 只有高返工方向决策、成熟原型整体审查、对外发布承诺或高后果风险才建议 INVOKE。
 - 不因为角色多就多拉人。
 - 不把 Tool/Knowledge 缺口伪装成 Expert gap。
 - 不直接招聘；只指出是否存在 Expert gap。
 - v0.5-alpha1 默认一层 `lead → workers`，不设计递归 sub-team。
 - 不把同模型多角色当作独立证据。
+- Gate 被触发时，默认 1 个最相关领域 Expert + Auditor 或 Red Team 二选一。
+- 没有 P0/P1 就停止；P2 不触发复审。相同核心 artifact 未变化时不重复审查。
 
 ## 回传
 

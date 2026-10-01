@@ -18,7 +18,54 @@ description: 面向复杂、跨专业、多步骤任务的中文 AI 专家团调
 7. **高后果结论必须保留证据、反证和不确定性。** 必要时调用 Red Team / Auditor。
 8. **默认执行，不只给计划。** 用户明确要求做项目时，先读取当前仓库和现有成果，再直接修改、测试、验证。
 
-## 二、什么时候使用本 Skill
+## 二、专家审查触发门：按决策风险与产品成熟度，而不是开发节奏
+
+**核心规则：Expert review is triggered by decision risk and product maturity, not implementation cadence.**
+
+在调用任何 Expert / Auditor / Red Team 之前，先做一次最小 preflight：
+
+```text
+EXPERT_REVIEW_DECISION
+Decision: INVOKE | SKIP
+Gate: DIRECTION | PROTOTYPE | RELEASE | CRITICAL_RISK | NONE
+Reason: <为什么>
+Decision reversibility: LOW | MEDIUM | HIGH
+Expected rework cost: LOW | MEDIUM | HIGH
+External impact: LOW | MEDIUM | HIGH
+Security/legal risk: NONE | LOW | HIGH
+Product maturity: IDEA | BUILDING | PROTOTYPE | RELEASE_CANDIDATE
+```
+
+默认 **SKIP**。以下情况才进入 Gate：
+
+- **DIRECTION_GATE**：产品定位、核心架构、重大依赖、build-vs-buy、是否 pivot 等；如果判断错会导致明显返工或路线偏离。
+- **PROTOTYPE_GATE**：核心用户闭环第一次真实跑通，已经有可运行原型、真实输出、测试和已知限制，需要整体审查。
+- **RELEASE_GATE**：准备公开 GitHub release、比赛提交、外部 Demo、生产 beta、资助/项目申请等外部承诺。
+- **CRITICAL_RISK_GATE**：安全、隐私、许可证、数据损失、不可逆迁移、危险代码执行等高后果风险；可随时触发。
+
+以下工作默认 **SKIP_EXPERT_REVIEW**：
+
+- 普通 bug fix、lint/typecheck 修复、测试补充、fixture、命名、文档措辞；
+- 小型 schema 调整、内部重构、单个 parser 的增量支持；
+- 仅因为“又完成了一个 Phase / commit”而进行的审查。
+
+只有这些小改动引入架构、安全、许可证或破坏性风险时，才升级到相应 Gate。
+
+### Gate 的最小团队与停止条件
+
+每个 Gate 默认最多：
+
+1. **1 个最相关领域 Expert**；
+2. 再加 **Auditor 或 Red Team 二选一**。
+
+不要默认同时调用 Auditor + Red Team；只有风险确实跨越“证据真实性”和“对抗性反证”两个独立维度时才同时使用，并说明原因。
+
+审查前先生成 **Review Packet**，只包含：当前决策/问题、必要 artifact/diff、真实测试结果、已知风险与 unknown、之前相关决策。不要让每个 Expert 重读整个仓库。
+
+若没有 P0/P1，Gate 立即结束；P2 只记录，不触发复审。只有 P0/P1 修复后允许 **一次 targeted re-review**，只验证 blocker 是否解决，不重新做完整审查。
+
+同一个 Gate 若核心 artifact hash / commit 未发生重大变化，默认 **DO NOT RE-RUN**，除非出现新的关键证据、P0/P1 修复待验证，或用户明确要求复审。
+## 三、什么时候使用本 Skill
 
 优先使用于：
 
@@ -31,7 +78,7 @@ description: 面向复杂、跨专业、多步骤任务的中文 AI 专家团调
 
 不应为了普通解释、翻译、简单修 bug、单文件小修改而启动完整招聘流程。
 
-## 三、启动顺序
+## 四、启动顺序
 
 ### Step 1：读取当前项目
 
@@ -73,7 +120,7 @@ description: 面向复杂、跨专业、多步骤任务的中文 AI 专家团调
 
 如果宿主不支持独立 Agent，只能做角色模拟时，必须把结果标记为“single-context role simulation”，不得把多角色意见当成独立证据。
 
-## 四、调用 Zh Expert OS CLI
+## 五、调用 Zh Expert OS CLI
 
 如果 `zh-expert-os` 命令可用，优先直接调用。常用命令：
 
@@ -126,7 +173,7 @@ zh-expert-os arena-finalize --battle <battle-id>
 
 不要为了能调用命令而硬造不相关的 incumbent；真实 Arena 应比较同岗位或明确可替代的 baseline。
 
-## 五、CLI 不可用时
+## 六、CLI 不可用时
 
 先检查当前环境是否已经安装 Zh Expert OS。若当前机器有本仓库副本，可建议或在用户允许的开发环境中执行：
 
@@ -140,7 +187,7 @@ python -m pip install -e /path/to/zh-expert-os --no-build-isolation
 - 没有真实 Arena 结果时，不得声称候选“已证明优于现任”；
 - 不要因为基础设施未就绪而阻塞用户原始项目，先用现有能力继续交付。
 
-## 六、GitHub 招聘规则
+## 七、GitHub 招聘规则
 
 真正缺 Expert 时，搜索的是能力资产，而不是只搜 `expert`。候选来源可以包括：
 
@@ -157,7 +204,7 @@ python -m pip install -e /path/to/zh-expert-os --no-build-isolation
 
 未知许可证默认只研究，不复制。Copyleft 资产默认进入人工 License Review。
 
-## 七、复杂产品 / 黑客松任务的推荐编排
+## 八、复杂产品 / 黑客松任务的推荐编排
 
 对于类似“做一个可提交、可演示、能真实运行的黑客松产品”的任务，默认从以下最小团队开始判断，而不是全量拉人：
 
@@ -185,7 +232,7 @@ Evaluation / Red Team
 → 最终交付
 ```
 
-## 八、输出给用户时
+## 九、输出给用户时
 
 不要把内部组织过程变成冗长表演。除非用户要求，最终优先报告：
 

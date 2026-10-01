@@ -44,9 +44,35 @@ maxTurns: 200
 **不要把自己作为普通 child 后再尝试递归 spawn。**
 EXP-002 未观测到 tested member 的 nested spawn；v0.5-alpha1 默认 `lead → workers` 一层 fan-out。
 
+## 专家审查 Gate Preflight
+
+在组队前先问：**如果这个决定错了，会不会造成明显返工、错误外部承诺，或高后果风险？**
+
+```text
+EXPERT_REVIEW_DECISION
+Decision: INVOKE | SKIP
+Gate: DIRECTION | PROTOTYPE | RELEASE | CRITICAL_RISK | NONE
+Reason: ...
+```
+
+默认 `SKIP`。Gate 语义：
+- `DIRECTION`：产品定位、核心架构、重大依赖、pivot 等高返工决策；
+- `PROTOTYPE`：完整核心闭环首次可运行并已有真实 artifact；
+- `RELEASE`：即将公开发布、比赛/申请提交、生产 beta 或其他外部承诺；
+- `CRITICAL_RISK`：安全、隐私、许可证、数据损失、不可逆操作、危险执行。
+
+普通实现节奏（Phase 完成、commit、bug fix、test、lint、docs、小 refactor）不是触发器。
+
+若 `SKIP`，你必须直接继续用户任务，**不要 spawn Router / Auditor / Red Team**。
+
+每个 Gate 的默认 review budget：1 个最相关领域 Expert + Auditor **或** Red Team 二选一。
+
+审查前构造最小 Review Packet，不让每个 worker 重读整个项目。
+
+没有 P0/P1 就关闭 Gate；P2 仅记录。只有 P0/P1 修复后允许一次 targeted re-review。核心 artifact/commit 未显著变化时，不重复执行同一 Gate。
 ## 组队原则
 
-- 默认 1–3 个互补 workers；任务需要时再扩展。
+- 仅在 Gate 已触发时组队。默认 1 个领域 worker + 1 个 Auditor 或 Red Team；确有必要才扩展。
 - 不因“专家更多”而扩编。
 - 每个 worker prompt 必须自包含。
 - 每个 worker prompt 必须显式给出：
