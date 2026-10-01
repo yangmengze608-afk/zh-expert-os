@@ -60,6 +60,17 @@ class WorkBuddyPackageTests(unittest.TestCase):
         skill = (root / "adapters" / "workbuddy" / "SKILL.md").read_text(encoding="utf-8")
         self.assertIn("Agent", skill)
         self.assertIn("TaskStop", skill)
+        self.assertIn("EXPERT_REVIEW_DECISION", skill)
+        self.assertIn("DIRECTION | PROTOTYPE | RELEASE | CRITICAL_RISK | NONE", skill)
+        self.assertIn("默认 `SKIP`", skill)
+
+        lead = (agents_dir / "zh-expert-os-lead.md").read_text(encoding="utf-8")
+        self.assertIn("专家审查 Gate Preflight", lead)
+        self.assertIn("不要 spawn Router / Auditor / Red Team", lead)
+
+        router = (agents_dir / "zeos-router.md").read_text(encoding="utf-8")
+        self.assertIn("Decision: INVOKE | SKIP", router)
+        self.assertIn("没有 P0/P1 就停止", router)
 
     def test_workbuddy_shell_installers_parse(self):
         root = Path(__file__).resolve().parents[1]
