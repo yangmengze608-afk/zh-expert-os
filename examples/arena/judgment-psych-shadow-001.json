@@ -1,0 +1,22 @@
+{
+  "battle_id": "psych-shadow-001",
+  "judge_id": "human-user",
+  "presentation_order": "AB",
+  "score_a": {
+    "task_completion": 0.9,
+    "factuality": 0.95,
+    "evidence_quality": 0.9,
+    "chinese_native": 0.95,
+    "clarity": 0.95,
+    "critical_violations": 0
+  },
+  "score_b": {
+    "task_completion": 0.5,
+    "factuality": 0.8,
+    "evidence_quality": 0.3,
+    "chinese_native": 0.7,
+    "clarity": 0.8,
+    "critical_violations": 0
+  },
+  "rationale": "人工 taste test 首批验收（2026-10-01，4 题：task-psych-001 考试焦虑 / 002 拖延自我攻击 / 003 关系冲突 / 004 纯技术对照）。challenger=psych-aware，incumbent=无心理学基线的普通回答（对照样本：'列个计划，早点睡'）。验收结论：A 在情绪承接、拆灾难化、小动作落地、克制（004 未硬塞心理学）上显著优于 B；B 能完成任务但未接住情绪、无行为设计依据。证据级别：人工验收（非匿名多 judge Arena），仅作 probation 首批证据，不构成晋升依据。"
+}
